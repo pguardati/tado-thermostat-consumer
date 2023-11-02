@@ -21,7 +21,7 @@ set +o allexport
 ## TODO
 
 ### chore
-- add linters (flake8, pylint, mypy, isort)
+- add linters (black, flake8, pylint, mypy, isort)
 - add test to work on a single file
 - replace set/source/set with dotenv or something like that
  

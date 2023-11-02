@@ -3,18 +3,18 @@ import json
 import pandas as pd
 import matplotlib.pyplot as plt
 
-
 # set interactive backend
 plt.switch_backend("TkAgg")
 
 
-def read_daily_data(dfs, download_dir, file):
+def read_daily_temperature(_temperatures, download_dir, file):
     with open(os.path.join(download_dir, file), "r") as f:
         historic_data = json.load(f)
-    temperatures = historic_data["measuredData"]["insideTemperature"]["dataPoints"]
+    temperatures = historic_data["measuredData"]["insideTemperature"][
+        "dataPoints"]
     times = [t["timestamp"] for t in temperatures]
     values = [t["value"]["celsius"] for t in temperatures]
-    dfs.append(pd.DataFrame({"time": times, "temperature": values}))
+    _temperatures.append(pd.DataFrame({"time": times, "temperature": values}))
 
 
 def _plot_all_temperatures(df):
@@ -53,11 +53,16 @@ def _plot_overlapping_temperatures(df_raw):
     plt.show()
 
 
+def _get_temperatures(files, download_dir):
+    daily_temperatures = []
+    for file in files:
+        read_daily_temperature(daily_temperatures, download_dir, file)
+    _temperatures = pd.concat(daily_temperatures)
+    return _temperatures
+
+
 def plot_temperatures(download_dir):
     files = os.listdir(download_dir)
-    dfs = []
-    for file in files:
-        read_daily_data(dfs, download_dir, file)
-    df = pd.concat(dfs)
-    _plot_all_temperatures(df)
-    _plot_overlapping_temperatures(df)
+    _temperatures = _get_temperatures(files, download_dir)
+    _plot_all_temperatures(_temperatures)
+    _plot_overlapping_temperatures(_temperatures)
