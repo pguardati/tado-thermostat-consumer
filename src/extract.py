@@ -1,12 +1,14 @@
 import os
 import json
+import re
+
 import requests
 import pandas as pd
 
 from datetime import datetime
 
 
-def get_token():
+def get_token(client_secret):
     url = "https://auth.tado.com/oauth/token"
     payload = {
         "client_id": "tado-web-app",
@@ -14,7 +16,7 @@ def get_token():
         "scope": "home.user",
         "username": os.environ["TADO_EMAIL"],
         "password": os.environ["TADO_PASSWORD"],
-        "client_secret": os.environ["TADO_CLIENT_SECRET"],
+        "client_secret": client_secret,
     }
     headers = {"Content-Type": "application/x-www-form-urlencoded"}
     response = requests.request("POST", url, headers=headers, data=payload)
@@ -64,8 +66,19 @@ def _get_historic_data(token, home_id, zone_id, start_date, download_dir):
         _get_missing_daily_data(date)
 
 
+def get_client_secret():
+    response = requests.request("GET", "https://app.tado.com/env.js")
+    if response.status_code != 200:
+        raise Exception("Failed to get client secret")
+    data_string = response.text
+    client_secret_match = re.search(r"clientSecret: '([^']+)'", data_string)
+    client_secret = client_secret_match.group(1) if client_secret_match else None
+    return client_secret
+
+
 def get_historic_data(start_date, download_dir):
-    token = get_token()
+    client_secret = get_client_secret()
+    token = get_token(client_secret)
     home_id = get_home_id(token)
     zone_id = get_zones(token, home_id)
     _get_historic_data(token, home_id, zone_id, start_date, download_dir)

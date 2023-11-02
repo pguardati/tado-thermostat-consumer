@@ -26,7 +26,6 @@ set +o allexport
 - replace set/source/set with dotenv or something like that
  
 ### feat
-- scrape automatically secret from https://app.tado.com/env.js
 - gather heat command
 - plot heater command
 - try parallel file scraping
