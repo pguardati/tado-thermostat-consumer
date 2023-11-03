@@ -48,7 +48,21 @@ def get_daily_data(token, home_id, zone_id, date):
     return historic_data
 
 
-def _get_historic_data(token, home_id, zone_id, start_date, download_dir):
+def _get_historic_data(
+    token,
+    home_id,
+    zone_id,
+    start_date,
+    download_dir,
+    reload_today,
+):
+    def _delete_today_data(date):
+        if date.strftime("%Y-%m-%d") == datetime.now().strftime("%Y-%m-%d"):
+            file = os.path.join(download_dir, f"historic_data_{date}.json")
+            if os.path.isfile(file):
+                os.remove(file)
+                print("delete today data")
+
     def _get_missing_daily_data(date):
         file = os.path.join(download_dir, f"historic_data_{date}.json")
         if os.path.isfile(file):
@@ -63,6 +77,8 @@ def _get_historic_data(token, home_id, zone_id, start_date, download_dir):
     end_date = datetime.now().strftime("%Y-%m-%d")
     print(f"Getting data from {start_date} to {end_date}")
     for date in pd.date_range(start_date, end_date):
+        if reload_today:
+            _delete_today_data(date)
         _get_missing_daily_data(date)
 
 
@@ -76,9 +92,16 @@ def get_client_secret():
     return client_secret
 
 
-def get_historic_data(start_date, download_dir):
+def get_historic_data(start_date, download_dir, reload_today):
     client_secret = get_client_secret()
     token = get_token(client_secret)
     home_id = get_home_id(token)
     zone_id = get_zones(token, home_id)
-    _get_historic_data(token, home_id, zone_id, start_date, download_dir)
+    _get_historic_data(
+        token,
+        home_id,
+        zone_id,
+        start_date,
+        download_dir,
+        reload_today,
+    )

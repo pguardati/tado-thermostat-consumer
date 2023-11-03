@@ -29,9 +29,10 @@ def main(
     download_dir,
     plot_all,
     plot_last_days,
+    reload_today,
 ):
     os.makedirs(download_dir, exist_ok=True)
-    get_historic_data(start_date, download_dir)
+    get_historic_data(start_date, download_dir, reload_today)
     plot_temperatures(
         download_dir,
         plot_all=plot_all,
@@ -46,6 +47,7 @@ def main(
 @click.option(
     "--plot_last_days", default=False, help="Plot last 7 days of temperatures"
 )
+@click.option("--reload_today", default=False, help="Reload today's data")
 def run_cli(**kwargs):
     main(**kwargs)
 
