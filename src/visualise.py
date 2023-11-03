@@ -42,7 +42,7 @@ def read_daily_commands(heat_commands, download_dir, file):
     )
 
 
-def _plot_all_temperatures(_temperatures, commmands):
+def _plot_all_temperatures(_temperatures, commands):
     def _preprocess_temperatures(df):
         _df = df.copy()
         _df["time"] = pd.to_datetime(_df["time"])
@@ -51,7 +51,7 @@ def _plot_all_temperatures(_temperatures, commmands):
         return _df
 
     def _preprocess_commands(df):
-        # from start,end,value create a datafram with time,temperature
+        # from start,end,value create a dataframe with time,temperature
         _df = df.copy()
         _df["start"] = pd.to_datetime(_df["start"])
         _df["end"] = pd.to_datetime(_df["end"])
@@ -80,7 +80,7 @@ def _plot_all_temperatures(_temperatures, commmands):
         plt.show()
 
     _t = _preprocess_temperatures(_temperatures)
-    _c = _preprocess_commands(commmands)
+    _c = _preprocess_commands(commands)
     _plot(_t, _c)
 
 

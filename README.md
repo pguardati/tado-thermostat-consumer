@@ -22,10 +22,13 @@ set +o allexport
 
 ### chore
 - add linters (black, flake8, pylint, mypy, isort)
-- add test to work on a single file
 - replace set/source/set with dotenv or something like that
 - add version control shortcuts in visual code
 - get envs from remote
+- add dockerised dev env ( one shot dev creation )
  
 ### feat
+- add test to work on a single file, single feature
+- visualise reduced window
+- add resample
 - try parallel file scraping
