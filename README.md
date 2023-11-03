@@ -29,6 +29,5 @@ set +o allexport
  
 ### feat
 - add test to work on a single file, single feature
-- visualise reduced window
 - add resample
 - try parallel file scraping

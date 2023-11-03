@@ -12,6 +12,7 @@ from visualise import (
 
 def plot_temperatures(
     download_dir,
+    start_date,
     plot_all,
     plot_last_days,
 ):
@@ -19,7 +20,7 @@ def plot_temperatures(
     _temperatures = _get_temperatures(files, download_dir)
     _commands = _get_heat_commands(files, download_dir)
     if plot_all:
-        _plot_all_temperatures(_temperatures, _commands)
+        _plot_all_temperatures(_temperatures, _commands, start_date)
     if plot_last_days:
         _plot_overlapping_temperatures(_temperatures)
 
@@ -35,6 +36,7 @@ def main(
     get_historic_data(start_date, download_dir, reload_today)
     plot_temperatures(
         download_dir,
+        start_date=start_date,
         plot_all=plot_all,
         plot_last_days=plot_last_days,
     )

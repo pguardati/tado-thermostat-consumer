@@ -42,15 +42,16 @@ def read_daily_commands(heat_commands, download_dir, file):
     )
 
 
-def _plot_all_temperatures(_temperatures, commands):
-    def _preprocess_temperatures(df):
+def _plot_all_temperatures(_temperatures, commands, start_date):
+    def _preprocess_temperatures(df, _start_date):
         _df = df.copy()
         _df["time"] = pd.to_datetime(_df["time"])
         _df = _df.set_index("time")
         _df = _df.resample("H").mean()
+        _df = _df[_df.index > _start_date]
         return _df
 
-    def _preprocess_commands(df):
+    def _preprocess_commands(df, _start_date):
         # from start,end,value create a dataframe with time,temperature
         _df = df.copy()
         _df["start"] = pd.to_datetime(_df["start"])
@@ -68,6 +69,7 @@ def _plot_all_temperatures(_temperatures, commands):
         _df2 = pd.concat(_temperature_ref)
         _df2 = _df2.sort_values(by=["time"])
         _df2 = _df2.set_index("time")
+        _df2 = _df2[_df2.index > _start_date]
         return _df2
 
     def _plot(_t, _c):
@@ -79,8 +81,8 @@ def _plot_all_temperatures(_temperatures, commands):
         plt.legend()
         plt.show()
 
-    _t = _preprocess_temperatures(_temperatures)
-    _c = _preprocess_commands(commands)
+    _t = _preprocess_temperatures(_temperatures, start_date)
+    _c = _preprocess_commands(commands, start_date)
     _plot(_t, _c)
 
 
