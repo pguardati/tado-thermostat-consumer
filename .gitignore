@@ -6,7 +6,12 @@
 /.idea/modules.xml
 /.idea/tado-thermostat-consumer.iml
 /.idea/vcs.xml
-/a0_tmp/
 /.idea/dbnavigator.xml
-/src/data/
+
+.vscode/
+
+__pycache__/
 /.env
+
+data/
+a0_tmp/

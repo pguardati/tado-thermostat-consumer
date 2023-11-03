@@ -24,8 +24,8 @@ set +o allexport
 - add linters (black, flake8, pylint, mypy, isort)
 - add test to work on a single file
 - replace set/source/set with dotenv or something like that
+- add version control shortcuts in visual code
+- get envs from remote
  
 ### feat
-- gather heat command
-- plot heater command
 - try parallel file scraping
