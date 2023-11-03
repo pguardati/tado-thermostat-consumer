@@ -128,10 +128,3 @@ def _get_heat_commands(files, download_dir):
     _commands = pd.concat(heat_commands)
     return _commands
 
-
-def plot_temperatures(download_dir):
-    files = os.listdir(download_dir)
-    _temperatures = _get_temperatures(files, download_dir)
-    _commands = _get_heat_commands(files, download_dir)
-    _plot_all_temperatures(_temperatures, _commands)
-    _plot_overlapping_temperatures(_temperatures)
