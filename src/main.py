@@ -1,12 +1,9 @@
 import os
+
 import click
 
 from src.extract import get_historic_data
-from visualise import (
-    _get_heat_commands,
-    _get_temperatures,
-    _plot_all_temperatures,
-)
+from visualise import _get_heat_commands, _get_temperatures, _plot_all_temperatures
 
 
 def plot_temperatures(

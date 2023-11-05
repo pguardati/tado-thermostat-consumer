@@ -17,6 +17,14 @@ source ~/PycharmProjects/tado-thermostat-consumer/.env;
 set +o allexport
 ```
 
+# Style
+Style is preserved by pre-commit action. 
+It is hooked automatically at installation time.
+However, to run it manually:
+```
+pre-commit run --all-files
+```
+
 
 ## TODO
 

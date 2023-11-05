@@ -1,0 +1,31 @@
+[tool.black]
+line-length = 88
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.egg
+  | \.git
+  | \.mypy_cache
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+
+[tool.flake8]
+max-line-length = 100 
+exclude = .git,__pycache__,.venv,.eggs,*.egg
+ignore = E203, E266, E501, W503
+select = B,C,E,F,W,T4,B9
+max-complexity = 18
+
+[tool.mypy]
+python_version = 3.10
+check_untyped_defs = true
+ignore_missing_imports = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+
