@@ -2,6 +2,8 @@ import os
 import json
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+
 
 # set interactive backend
 plt.switch_backend("TkAgg")
@@ -76,9 +78,12 @@ def _plot_all_temperatures(_temperatures, commands, start_date):
         fig, ax = plt.subplots()
         ax.plot(_t.index, _t["temperature"], label="measured", color="blue")
         ax.plot(_c.index, _c["temperature"], label="commanded", color="red")
-        most_recent_date = _t.index.min().strftime("%Y-%m-%d")
-        plt.title(f"Living Room Temperatures since {most_recent_date}")
-        plt.legend()
+        plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%d-%m"))
+        plt.gca().xaxis.set_major_locator(mdates.WeekdayLocator())
+        plt.gcf().autofmt_xdate()
+        plt.grid(True)
+        plt.legend( loc='lower left') 
+        plt.title(f"Living Room Temperatures since {_t.index.min().strftime('%Y-%m-%d')}")
         plt.show()
 
     _t = _preprocess_temperatures(_temperatures, start_date)
@@ -129,4 +134,3 @@ def _get_heat_commands(files, download_dir):
         )
     _commands = pd.concat(heat_commands)
     return _commands
-
