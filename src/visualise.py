@@ -91,31 +91,6 @@ def _plot_all_temperatures(_temperatures, commands, start_date):
     _plot(_t, _c)
 
 
-def _plot_overlapping_temperatures(df_raw):
-    # plot the daily temperatures on top of each other
-    df = df_raw.copy()
-    # parse datetime
-    df["datetime"] = pd.to_datetime(df["time"])
-    # get last 7 days
-    df = df[df["datetime"] > df["datetime"].max() - pd.Timedelta(days=7)]
-    # get day of the year
-    df["day"] = df["datetime"].dt.date
-    df["day"] = pd.to_datetime(df["day"])
-    df["day"] = df["day"].dt.dayofyear
-    # get hour
-    df["time"] = df["datetime"].dt.hour
-    # drop duplicates of date and time
-    df = df.sort_values(by=["day", "time"])
-    df = df.drop_duplicates(subset=["day", "time"])
-    df = df.dropna()
-    for day in df["day"].unique():
-        df_day = df[df["day"] == day]
-        plt.plot(df_day["time"], df_day["temperature"])
-    plt.legend(df["day"].unique())
-    plt.title("Daily Temperatures over the last 7 days")
-    plt.show()
-
-
 def _get_temperatures(files, download_dir):
     daily_temperatures = []
     for file in files:
