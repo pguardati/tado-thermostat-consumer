@@ -49,8 +49,8 @@ def _plot_all_temperatures(_temperatures, commands, start_date):
         _df = df.copy()
         _df["time"] = pd.to_datetime(_df["time"])
         _df = _df.set_index("time")
-        _df = _df.resample("H").mean()
         _df = _df[_df.index > _start_date]
+        _df = _df.sort_values(by=["time"])
         return _df
 
     def _preprocess_commands(df, _start_date):

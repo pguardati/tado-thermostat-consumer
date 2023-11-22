@@ -27,7 +27,7 @@ pre-commit run --all-files
 
 # Usage
 ```
-python src/main.py --start_date 2023-10-20 --reload_today=True
+python src/main.py --start_date 2023-05-18 --reload_today=True
 ```
 
 

@@ -1,9 +1,12 @@
 import os
+from datetime import datetime, timedelta
 
 import click
 
 from src.extract import get_historic_data
 from visualise import _get_heat_commands, _get_temperatures, _plot_all_temperatures
+
+ONE_WEEK_AGO = (datetime.now() - timedelta(days=5)).date()
 
 
 def plot_temperatures(
@@ -34,10 +37,10 @@ def main(
 
 
 @click.command()
-@click.option("--start_date", default="2023-05-18", help="Start date for the data")
+@click.option("--start_date", default=ONE_WEEK_AGO, help="Start date for the data")
 @click.option("--download_dir", default="data", help="Directory to download data to")
 @click.option("--plot_all", default=True, help="Plot all temperatures")
-@click.option("--reload_today", default=False, help="Reload today's data")
+@click.option("--reload_today", default=True, help="Reload today's data")
 def run_cli(**kwargs):
     main(**kwargs)
 
