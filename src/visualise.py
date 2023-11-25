@@ -25,26 +25,26 @@ def read_daily_temperature(_temperatures, download_dir, file):
     )
 
 
-def read_daily_commands(heat_commands, download_dir, file):
+def read_daily_targets(temperature_targets, download_dir, file):
     with open(os.path.join(download_dir, file), "r") as f:
         historic_data = json.load(f)
-    commands = historic_data["settings"]["dataIntervals"]
-    valid_commands = [c for c in commands if c["value"]["power"] == "ON"]
-    command_starts = [t["from"] for t in valid_commands]
-    command_ends = [t["to"] for t in valid_commands]
-    command_values = [t["value"]["temperature"]["celsius"] for t in valid_commands]
-    heat_commands.append(
+    targets = historic_data["settings"]["dataIntervals"]
+    valid = [c for c in targets if c["value"]["power"] == "ON"]
+    starts = [t["from"] for t in valid]
+    ends = [t["to"] for t in valid]
+    values = [t["value"]["temperature"]["celsius"] for t in valid]
+    temperature_targets.append(
         pd.DataFrame(
             {
-                "start": command_starts,
-                "end": command_ends,
-                "temperature": command_values,
+                "start": starts,
+                "end": ends,
+                "temperature": values,
             }
         )
     )
 
 
-def _plot_all_temperatures(_temperatures, commands, start_date):
+def _plot_all_temperatures(_temperatures, targets, start_date):
     def _preprocess_temperatures(df, _start_date):
         _df = df.copy()
         _df["time"] = pd.to_datetime(_df["time"])
@@ -87,7 +87,7 @@ def _plot_all_temperatures(_temperatures, commands, start_date):
         plt.show()
 
     _t = _preprocess_temperatures(_temperatures, start_date)
-    _c = _preprocess_commands(commands, start_date)
+    _c = _preprocess_commands(targets, start_date)
     _plot(_t, _c)
 
 
@@ -99,13 +99,13 @@ def _get_temperatures(files, download_dir):
     return _temperatures
 
 
-def _get_heat_commands(files, download_dir):
-    heat_commands = []
+def _get_temperature_targets(files, download_dir):
+    temperature_targets = []
     for file in files:
-        read_daily_commands(
-            heat_commands,
+        read_daily_targets(
+            temperature_targets,
             download_dir,
             file,
         )
-    _commands = pd.concat(heat_commands)
+    _commands = pd.concat(temperature_targets)
     return _commands
