@@ -53,7 +53,7 @@ def _preprocess_intensity(df, start_date):
     _df["end"] = pd.to_datetime(_df["end"])
     _df = _df.sort_values(by=["start"])
     bigger_than_start_date = _df["start"] > start_date
-    after_heaters_on = _df["start"] > datetime(2023, 11, 1).date().isoformat()
+    after_heaters_on = _df["start"] > datetime(2023, 11, 21).date().isoformat()
     _df = _df[bigger_than_start_date & after_heaters_on]
     _df = _df.reset_index(drop=True)
     _intensity_ref = []
@@ -80,7 +80,7 @@ def _preprocess_intensity(df, start_date):
 
 def _use_common_ax_settings(ax):
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m"))
-    ax.xaxis.set_major_locator(mdates.WeekdayLocator())
+    ax.xaxis.set_major_locator(mdates.DayLocator())
     ax.figure.autofmt_xdate()
     ax.grid(True)
     ax.legend(loc="lower left")
@@ -91,11 +91,12 @@ def _plot_measurements_vs_targets(ax, _t, _c):
         f"Living Room Temperatures since {_t.index.min().strftime('%Y-%m-%d')}"
     )
     ax.plot(_t.index, _t["temperature"], label="measured", color="blue")
-    ax.plot(_c.index, _c["temperature"], label="commanded", color="red")
+    ax.plot(_c.index, _c["temperature"], label="target", color="red")
     _use_common_ax_settings(ax)
 
 
 def _plot_heaters_intensity(ax, _h):
+    ax.set_title(f"Heaters Intensity")
     ax.plot(_h.index, _h["intensity"], label="intensity", color="green")
     ax.yaxis.set_major_locator(mdates.AutoDateLocator())
     ax.set_yticks([0, 1, 2, 3])
@@ -107,7 +108,7 @@ def _plot(_t, _c, _h):
     fig, axes = plt.subplots(2, 1)
     _plot_measurements_vs_targets(axes[0], _t, _c)
     _plot_heaters_intensity(axes[1], _h)
-    axes[0].set_xlim(axes[1].get_xlim())
+    axes[1].set_xlim(axes[0].get_xlim())
     plt.show()
 
 

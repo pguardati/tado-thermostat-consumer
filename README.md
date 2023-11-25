@@ -37,9 +37,10 @@ python src/main.py --start_date 2023-05-18 --reload_today=True
 - add linters (black, flake8, pylint, mypy, isort)
 - replace set/source/set with dotenv or something like that
 - add version control shortcuts in visual code
-- get envs from remote
+- get envs from remote ( use go-based sops )
 - add dockerised dev env ( one shot dev creation )
  
 ### feat
 - add test to work on a single file, single feature
 - try parallel file scraping
+- add daily heater usage
