@@ -11,7 +11,9 @@ from transform import (
     _get_heaters_intensity,
 )
 
-ONE_WEEK_AGO = (datetime.now() - timedelta(days=5)).date()
+ONE_WEEK_AGO = (datetime.now() - timedelta(days=20)).date()
+PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DOWNLOAD_DIR = os.path.join(PROJECT_DIR, "data")
 
 
 def plot_temperatures(
@@ -37,9 +39,10 @@ def main(
     download_dir,
     plot_all,
     reload_today,
+    reload_all,
 ):
     os.makedirs(download_dir, exist_ok=True)
-    get_historic_data(start_date, download_dir, reload_today)
+    get_historic_data(start_date, download_dir, reload_today, reload_all)
     plot_temperatures(
         download_dir,
         start_date=start_date,
@@ -49,9 +52,12 @@ def main(
 
 @click.command()
 @click.option("--start_date", default=ONE_WEEK_AGO, help="Start date for the data")
-@click.option("--download_dir", default="data", help="Directory to download data to")
+@click.option(
+    "--download_dir", default=DOWNLOAD_DIR, help="Directory to download data to"
+)
 @click.option("--plot_all", default=True, help="Plot all temperatures")
 @click.option("--reload_today", default=True, help="Reload today's data")
+@click.option("--reload_all", default=False, help="Reload all data")
 def run_cli(**kwargs):
     main(**kwargs)
 

@@ -54,6 +54,7 @@ def _get_historic_data(
     start_date,
     download_dir,
     reload_today,
+    reload_all,
 ):
     def _delete_today_data(date):
         if date.strftime("%Y-%m-%d") == datetime.now().strftime("%Y-%m-%d"):
@@ -64,7 +65,7 @@ def _get_historic_data(
 
     def _get_missing_daily_data(date):
         file = os.path.join(download_dir, f"historic_data_{date}.json")
-        if os.path.isfile(file):
+        if os.path.isfile(file) and not reload_all:
             print(f"historic_data_{date}.json already exists")
         else:
             print(f"Getting data for {date}")
@@ -91,7 +92,7 @@ def get_client_secret():
     return client_secret
 
 
-def get_historic_data(start_date, download_dir, reload_today):
+def get_historic_data(start_date, download_dir, reload_today, reload_all):
     client_secret = get_client_secret()
     token = get_token(client_secret)
     home_id = get_home_id(token)
@@ -103,4 +104,5 @@ def get_historic_data(start_date, download_dir, reload_today):
         start_date,
         download_dir,
         reload_today,
+        reload_all
     )
