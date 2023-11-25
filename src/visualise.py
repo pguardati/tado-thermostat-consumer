@@ -21,20 +21,29 @@ def _preprocess_targets(df, _start_date):
     _df = df.copy()
     _df["start"] = pd.to_datetime(_df["start"])
     _df["end"] = pd.to_datetime(_df["end"])
-    _temperature_ref = []
-    for _, row in _df.iterrows():
-        _temperature_ref.append(
-            pd.DataFrame(
-                {
-                    "time": pd.date_range(row["start"], row["end"], freq="H"),
-                    "temperature": row["temperature"],
-                }
-            )
+    _df = _df.sort_values(by=["start"])
+    bigger_than_start_date = _df["start"] > _start_date
+    _df = _df[bigger_than_start_date]
+    _df = _df.reset_index(drop=True)
+    _targets_ref = []
+    for i, row in _df.iterrows():
+        _targets_ref.append(
+            {
+                "id": i,
+                "time": row["start"],
+                "temperature": row["temperature"],
+            }
         )
-    _df2 = pd.concat(_temperature_ref)
-    _df2 = _df2.sort_values(by=["time"])
+        _targets_ref.append(
+            {
+                "id": i,
+                "time": row["end"],
+                "temperature": row["temperature"],
+            }
+        )
+    _df2 = pd.DataFrame(_targets_ref)
+    _df2 = _df2.sort_values(by=["time", "id"])
     _df2 = _df2.set_index("time")
-    _df2 = _df2[_df2.index > _start_date]
     return _df2
 
 
