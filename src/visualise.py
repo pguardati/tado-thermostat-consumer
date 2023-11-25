@@ -29,10 +29,10 @@ def read_daily_targets(temperature_targets, download_dir, file):
     with open(os.path.join(download_dir, file), "r") as f:
         historic_data = json.load(f)
     targets = historic_data["settings"]["dataIntervals"]
-    valid = [c for c in targets if c["value"]["power"] == "ON"]
-    starts = [t["from"] for t in valid]
-    ends = [t["to"] for t in valid]
-    values = [t["value"]["temperature"]["celsius"] for t in valid]
+    targets_selected = [c for c in targets if c["value"]["power"] == "ON"]
+    starts = [t["from"] for t in targets_selected]
+    ends = [t["to"] for t in targets_selected]
+    values = [t["value"]["temperature"]["celsius"] for t in targets_selected]
     temperature_targets.append(
         pd.DataFrame(
             {
@@ -44,7 +44,31 @@ def read_daily_targets(temperature_targets, download_dir, file):
     )
 
 
-def _plot_all_temperatures(_temperatures, targets, start_date):
+def read_daily_intensity(heaters_intensity, download_dir, file):
+    heat_name_to_value = {
+        "NONE": 0,
+        "LOW": 1,
+        "MEDIUM": 2,
+        "HIGH": 3,
+    }
+    with open(os.path.join(download_dir, file), "r") as f:
+        historic_data = json.load(f)
+    targets_selected = historic_data["callForHeat"]["dataIntervals"]
+    starts = [t["from"] for t in targets_selected]
+    ends = [t["to"] for t in targets_selected]
+    values = [heat_name_to_value[t["value"]] for t in targets_selected]
+    heaters_intensity.append(
+        pd.DataFrame(
+            {
+                "start": starts,
+                "end": ends,
+                "intensity": values,
+            }
+        )
+    )
+
+
+def _plot_all_temperatures(_temperatures, targets, heaters_intensity, start_date):
     def _preprocess_temperatures(df, _start_date):
         _df = df.copy()
         _df["time"] = pd.to_datetime(_df["time"])
@@ -53,7 +77,7 @@ def _plot_all_temperatures(_temperatures, targets, start_date):
         _df = _df.sort_values(by=["time"])
         return _df
 
-    def _preprocess_commands(df, _start_date):
+    def _preprocess_targets(df, _start_date):
         # from start,end,value create a dataframe with time,temperature
         _df = df.copy()
         _df["start"] = pd.to_datetime(_df["start"])
@@ -74,21 +98,36 @@ def _plot_all_temperatures(_temperatures, targets, start_date):
         _df2 = _df2[_df2.index > _start_date]
         return _df2
 
-    def _plot(_t, _c):
+    def _preprocess_intensity(df, start_date):
+        _df = df.copy()
+        scale = 5
+        _df["start"] = pd.to_datetime(_df["start"])
+        _df["end"] = pd.to_datetime(_df["end"])
+        _df["intensity"] = _df["intensity"] * scale
+        _df = _df.sort_values(by=["start"])
+        _df = _df.set_index("start")
+        _df = _df[_df.index > start_date]
+        return _df
+
+    def _plot(_t, _c, _h):
         fig, ax = plt.subplots()
         ax.plot(_t.index, _t["temperature"], label="measured", color="blue")
         ax.plot(_c.index, _c["temperature"], label="commanded", color="red")
+        ax.plot(_h.index, _h["intensity"], label="intensity", color="green")
         plt.gca().xaxis.set_major_formatter(mdates.DateFormatter("%d-%m"))
         plt.gca().xaxis.set_major_locator(mdates.WeekdayLocator())
         plt.gcf().autofmt_xdate()
         plt.grid(True)
-        plt.legend( loc='lower left') 
-        plt.title(f"Living Room Temperatures since {_t.index.min().strftime('%Y-%m-%d')}")
+        plt.legend(loc="lower left")
+        plt.title(
+            f"Living Room Temperatures since {_t.index.min().strftime('%Y-%m-%d')}"
+        )
         plt.show()
 
     _t = _preprocess_temperatures(_temperatures, start_date)
-    _c = _preprocess_commands(targets, start_date)
-    _plot(_t, _c)
+    _c = _preprocess_targets(targets, start_date)
+    _h = _preprocess_intensity(heaters_intensity, start_date)
+    _plot(_t, _c, _h)
 
 
 def _get_temperatures(files, download_dir):
@@ -108,4 +147,16 @@ def _get_temperature_targets(files, download_dir):
             file,
         )
     _commands = pd.concat(temperature_targets)
+    return _commands
+
+
+def _get_heaters_intensity(files, download_dir):
+    heaters_intensity = []
+    for file in files:
+        read_daily_intensity(
+            heaters_intensity,
+            download_dir,
+            file,
+        )
+    _commands = pd.concat(heaters_intensity)
     return _commands

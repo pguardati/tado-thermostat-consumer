@@ -4,7 +4,12 @@ from datetime import datetime, timedelta
 import click
 
 from src.extract import get_historic_data
-from visualise import _get_temperature_targets, _get_temperatures, _plot_all_temperatures
+from visualise import (
+    _get_temperature_targets,
+    _get_temperatures,
+    _plot_all_temperatures,
+    _get_heaters_intensity,
+)
 
 ONE_WEEK_AGO = (datetime.now() - timedelta(days=25)).date()
 
@@ -17,8 +22,14 @@ def plot_temperatures(
     files = os.listdir(download_dir)
     _temperatures = _get_temperatures(files, download_dir)
     _targets = _get_temperature_targets(files, download_dir)
+    _heaters_intensity = _get_heaters_intensity(files, download_dir)
     if plot_all:
-        _plot_all_temperatures(_temperatures, _targets, start_date)
+        _plot_all_temperatures(
+            _temperatures,
+            _targets,
+            _heaters_intensity,
+            start_date,
+        )
 
 
 def main(
