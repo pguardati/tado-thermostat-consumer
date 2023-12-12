@@ -25,7 +25,9 @@ def get_token(client_secret):
 
 def get_home_id(token):
     url = "https://my.tado.com/api/v1/me"
-    response = requests.request("GET", url, headers={"Authorization": f"Bearer {token}"})
+    response = requests.request(
+        "GET", url, headers={"Authorization": f"Bearer {token}"}
+    )
     home_id = json.loads(response.text)["homeId"]
     return home_id
 
@@ -33,16 +35,20 @@ def get_home_id(token):
 def get_zones(token, home_id):
     # curl -s "https://my.tado.com/api/v2/homes/123456/zones" -H "Authorization: Bearer abc"
     url = f"https://my.tado.com/api/v2/homes/{home_id}/zones"
-    response = requests.request("GET", url, headers={"Authorization": f"Bearer {token}"})
+    response = requests.request(
+        "GET", url, headers={"Authorization": f"Bearer {token}"}
+    )
     zones = json.loads(response.text)
     zone_id = zones[0]["id"]
     return zone_id
 
 
 def get_daily_data(token, home_id, zone_id, date):
-    # curl -s 'https://my.tado.com/api/v2/homes/123456/zones/1/dayReport?date=2018-02-14' -H 'Authorization: Bearer abc'
+    # curl -s 'https://my.tado.com/api/v2/homes/123456/zones/1/dayReport?date=2018-02-14' -H 'Authorization: Bearer abc'  # noqa
     url = f"https://my.tado.com/api/v2/homes/{home_id}/zones/{zone_id}/dayReport?date={date}"
-    response = requests.request("GET", url, headers={"Authorization": f"Bearer {token}"})
+    response = requests.request(
+        "GET", url, headers={"Authorization": f"Bearer {token}"}
+    )
     historic_data = json.loads(response.text)
     return historic_data
 
@@ -104,5 +110,5 @@ def get_historic_data(start_date, download_dir, reload_today, reload_all):
         start_date,
         download_dir,
         reload_today,
-        reload_all
+        reload_all,
     )

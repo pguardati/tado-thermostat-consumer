@@ -1,7 +1,7 @@
 from datetime import datetime
 
-import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import matplotlib.pyplot as plt
 import pandas as pd
 
 plt.switch_backend("TkAgg")
@@ -96,7 +96,7 @@ def _plot_measurements_vs_targets(ax, _t, _c):
 
 
 def _plot_heaters_intensity(ax, _h):
-    ax.set_title(f"Heaters Intensity")
+    ax.set_title("Heaters Intensity")
     ax.plot(_h.index, _h["intensity"], label="intensity", color="green")
     ax.yaxis.set_major_locator(mdates.AutoDateLocator())
     ax.set_yticks([0, 1, 2, 3])

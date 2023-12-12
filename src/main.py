@@ -6,9 +6,9 @@ import click
 from src.extract import get_historic_data
 from src.visualise import _plot_all_temperatures
 from transform import (
+    _get_heaters_intensity,
     _get_temperature_targets,
     _get_temperatures,
-    _get_heaters_intensity,
 )
 
 ONE_WEEK_AGO = (datetime.now() - timedelta(days=10)).date()
