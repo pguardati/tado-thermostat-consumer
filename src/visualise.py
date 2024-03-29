@@ -1,3 +1,4 @@
+import enum
 from datetime import datetime
 
 import matplotlib.dates as mdates
@@ -5,6 +6,11 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 plt.switch_backend("TkAgg")
+
+
+class Granularity(enum.Enum):
+    DAY = "day"
+    MONTH = "month"
 
 
 def _preprocess_temperatures(df, _start_date):
@@ -78,42 +84,49 @@ def _preprocess_intensity(df, start_date):
     return _df2
 
 
-def _use_common_ax_settings(ax):
+def _use_common_ax_settings(ax, granularity=Granularity.MONTH):
+    if granularity == Granularity.MONTH:
+        _g = mdates.MonthLocator()
+    else:
+        _g = mdates.DayLocator()
+
     ax.xaxis.set_major_formatter(mdates.DateFormatter("%d-%m"))
-    ax.xaxis.set_major_locator(mdates.DayLocator())
+    ax.xaxis.set_major_locator(_g)
     ax.figure.autofmt_xdate()
     ax.grid(True)
     ax.legend(loc="lower left")
 
 
-def _plot_measurements_vs_targets(ax, _t, _c):
+def _plot_measurements_vs_targets(ax, _t, _c, visual_granularity):
     ax.set_title(
         f"Living Room Temperatures since {_t.index.min().strftime('%Y-%m-%d')}"
     )
     ax.plot(_t.index, _t["temperature"], label="measured", color="blue")
     ax.plot(_c.index, _c["temperature"], label="target", color="red")
-    _use_common_ax_settings(ax)
+    _use_common_ax_settings(ax, granularity=visual_granularity)
 
 
-def _plot_heaters_intensity(ax, _h):
+def _plot_heaters_intensity(ax, _h, visual_granularity):
     ax.set_title("Heaters Intensity")
     ax.plot(_h.index, _h["intensity"], label="intensity", color="green")
     ax.yaxis.set_major_locator(mdates.AutoDateLocator())
     ax.set_yticks([0, 1, 2, 3])
     ax.set_yticklabels(["NONE", "LOW", "MEDIUM", "HIGH"])
-    _use_common_ax_settings(ax)
+    _use_common_ax_settings(ax, granularity=visual_granularity)
 
 
-def _plot(_t, _c, _h):
+def _plot(_t, _c, _h, visual_granularity):
     fig, axes = plt.subplots(2, 1)
-    _plot_measurements_vs_targets(axes[0], _t, _c)
-    _plot_heaters_intensity(axes[1], _h)
+    _plot_measurements_vs_targets(axes[0], _t, _c, visual_granularity)
+    _plot_heaters_intensity(axes[1], _h, visual_granularity)
     axes[1].set_xlim(axes[0].get_xlim())
     plt.show()
 
 
-def _plot_all_temperatures(_temperatures, targets, heaters_intensity, start_date):
+def _plot_all_temperatures(
+    _temperatures, targets, heaters_intensity, start_date, visual_granularity
+):
     _t = _preprocess_temperatures(_temperatures, start_date)
     _c = _preprocess_targets(targets, start_date)
     _h = _preprocess_intensity(heaters_intensity, start_date)
-    _plot(_t, _c, _h)
+    _plot(_t, _c, _h, visual_granularity)

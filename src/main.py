@@ -4,14 +4,14 @@ from datetime import datetime, timedelta
 import click
 
 from src.extract import get_historic_data
-from src.visualise import _plot_all_temperatures
+from src.visualise import _plot_all_temperatures, Granularity
 from transform import (
     _get_heaters_intensity,
     _get_temperature_targets,
     _get_temperatures,
 )
 
-ONE_WEEK_AGO = (datetime.now() - timedelta(days=10)).date()
+ONE_WEEK_AGO = (datetime.now() - timedelta(days=100)).date()
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DOWNLOAD_DIR = os.path.join(PROJECT_DIR, "data")
 
@@ -20,6 +20,7 @@ def plot_temperatures(
     download_dir,
     start_date,
     plot_all,
+    visual_granularity,
 ):
     files = os.listdir(download_dir)
     _temperatures = _get_temperatures(files, download_dir)
@@ -31,6 +32,7 @@ def plot_temperatures(
             _targets,
             _heaters_intensity,
             start_date,
+            visual_granularity,
         )
 
 
@@ -40,6 +42,7 @@ def main(
     plot_all,
     reload_today,
     reload_all,
+    visual_granularity,
 ):
     os.makedirs(download_dir, exist_ok=True)
     get_historic_data(start_date, download_dir, reload_today, reload_all)
@@ -47,6 +50,7 @@ def main(
         download_dir,
         start_date=start_date,
         plot_all=plot_all,
+        visual_granularity=visual_granularity,
     )
 
 
@@ -57,7 +61,13 @@ def main(
 )
 @click.option("--plot_all", default=True, help="Plot all temperatures")
 @click.option("--reload_today", default=True, help="Reload today's data")
-@click.option("--reload_all", default=True, help="Reload all data")
+@click.option("--reload_all", default=False, help="Reload all data")
+@click.option(
+    "--visual-granularity",
+    default=Granularity.MONTH,
+    type=Granularity,
+    help="Granularity of visualisation",
+)
 def run_cli(**kwargs):
     main(**kwargs)
 
