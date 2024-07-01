@@ -98,7 +98,8 @@ def get_client_secret():
     return client_secret
 
 
-def get_historic_data(start_date, download_dir, reload_today, reload_all):
+def extract_files_from_tado_api(start_date, download_dir, reload_today, reload_all):
+    print("\nExtracting data from Tado API..")
     client_secret = get_client_secret()
     token = get_token(client_secret)
     home_id = get_home_id(token)

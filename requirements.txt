@@ -3,6 +3,7 @@ matplotlib
 requests
 pandas
 click
+pyarrow
 # style
 pre-commit
 black

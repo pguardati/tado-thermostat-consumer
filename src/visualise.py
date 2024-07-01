@@ -1,4 +1,5 @@
 import enum
+import os
 from datetime import datetime
 
 import matplotlib.dates as mdates
@@ -11,77 +12,6 @@ plt.switch_backend("TkAgg")
 class Granularity(enum.Enum):
     DAY = "day"
     MONTH = "month"
-
-
-def _preprocess_temperatures(df, _start_date):
-    _df = df.copy()
-    _df["time"] = pd.to_datetime(_df["time"])
-    _df = _df.set_index("time")
-    _df = _df[_df.index > _start_date]
-    _df = _df.sort_values(by=["time"])
-    return _df
-
-
-def _preprocess_targets(df, _start_date):
-    # from start,end,value create a dataframe with time,temperature
-    _df = df.copy()
-    _df["start"] = pd.to_datetime(_df["start"])
-    _df["end"] = pd.to_datetime(_df["end"])
-    _df = _df.sort_values(by=["start"])
-    bigger_than_start_date = _df["start"] > _start_date
-    _df = _df[bigger_than_start_date]
-    _df = _df.reset_index(drop=True)
-    _targets_ref = []
-    for i, row in _df.iterrows():
-        _targets_ref.append(
-            {
-                "id": i,
-                "time": row["start"],
-                "temperature": row["temperature"],
-            }
-        )
-        _targets_ref.append(
-            {
-                "id": i,
-                "time": row["end"],
-                "temperature": row["temperature"],
-            }
-        )
-    _df2 = pd.DataFrame(_targets_ref)
-    _df2 = _df2.sort_values(by=["time", "id"])
-    _df2 = _df2.set_index("time")
-    return _df2
-
-
-def _preprocess_intensity(df, start_date):
-    _df = df.copy()
-    _df["start"] = pd.to_datetime(_df["start"])
-    _df["end"] = pd.to_datetime(_df["end"])
-    _df = _df.sort_values(by=["start"])
-    bigger_than_start_date = _df["start"] > start_date
-    after_heaters_on = _df["start"] > datetime(2023, 11, 21).date().isoformat()
-    _df = _df[bigger_than_start_date & after_heaters_on]
-    _df = _df.reset_index(drop=True)
-    _intensity_ref = []
-    for i, row in _df.iterrows():
-        _intensity_ref.append(
-            {
-                "id": i,
-                "time": row["start"],
-                "intensity": row["intensity"],
-            }
-        )
-        _intensity_ref.append(
-            {
-                "id": i,
-                "time": row["end"],
-                "intensity": row["intensity"],
-            }
-        )
-    _df2 = pd.DataFrame(_intensity_ref)
-    _df2 = _df2.sort_values(by=["time", "id"])
-    _df2 = _df2.set_index("time")
-    return _df2
 
 
 def _use_common_ax_settings(ax, granularity=Granularity.MONTH):
@@ -132,9 +62,11 @@ def color_seasons(ax, _t):
                     span_end,
                     color=season_colors[season],
                     alpha=0.2,
-                    label=season
-                    if (span_start == start_date or year == start_date.year)
-                    else "",
+                    label=(
+                        season
+                        if (span_start == start_date or year == start_date.year)
+                        else ""
+                    ),
                 )
 
     # Optional: Add legend outside the plot
@@ -165,18 +97,15 @@ def _plot_heaters_intensity(ax, _h, visual_granularity):
     _use_common_ax_settings(ax, granularity=visual_granularity)
 
 
-def _plot(_t, _c, _h, visual_granularity):
+def plot_aggregates(golden_dir, visual_granularity):
+    # read
+    _t = pd.read_parquet(os.path.join(golden_dir, "temperatures.parquet"))
+    _c = pd.read_parquet(os.path.join(golden_dir, "targets.parquet"))
+    _h = pd.read_parquet(os.path.join(golden_dir, "intensity.parquet"))
+
+    # plot
     fig, axes = plt.subplots(2, 1)
     _plot_measurements_vs_targets(axes[0], _t, _c, visual_granularity)
     _plot_heaters_intensity(axes[1], _h, visual_granularity)
     axes[1].set_xlim(axes[0].get_xlim())
     plt.show()
-
-
-def _plot_all_temperatures(
-    _temperatures, targets, heaters_intensity, start_date, visual_granularity
-):
-    _t = _preprocess_temperatures(_temperatures, start_date)
-    _c = _preprocess_targets(targets, start_date)
-    _h = _preprocess_intensity(heaters_intensity, start_date)
-    _plot(_t, _c, _h, visual_granularity)

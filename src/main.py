@@ -2,63 +2,45 @@ import os
 from datetime import datetime, timedelta
 
 import click
-
-from src.extract import get_historic_data
-from src.visualise import _plot_all_temperatures, Granularity
-from transform import (
-    _get_heaters_intensity,
-    _get_temperature_targets,
-    _get_temperatures,
+from src.stages.extract import extract_files_from_tado_api
+from src.visualise import (
+    plot_aggregates,
+    Granularity,
 )
+from src.stages.ingest import ingest_raw_data
+from src.stages.aggregate import clean_data
 
 ONE_WEEK_AGO = (datetime.now() - timedelta(days=100)).date()
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DOWNLOAD_DIR = os.path.join(PROJECT_DIR, "data")
-
-
-def plot_temperatures(
-    download_dir,
-    start_date,
-    plot_all,
-    visual_granularity,
-):
-    files = os.listdir(download_dir)
-    _temperatures = _get_temperatures(files, download_dir)
-    _targets = _get_temperature_targets(files, download_dir)
-    _heaters_intensity = _get_heaters_intensity(files, download_dir)
-    if plot_all:
-        _plot_all_temperatures(
-            _temperatures,
-            _targets,
-            _heaters_intensity,
-            start_date,
-            visual_granularity,
-        )
+LAKE_DIR = os.path.join(PROJECT_DIR, "data")
 
 
 def main(
     start_date,
-    download_dir,
+    lake_dir,
     plot_all,
     reload_today,
     reload_all,
     visual_granularity,
 ):
-    os.makedirs(download_dir, exist_ok=True)
-    get_historic_data(start_date, download_dir, reload_today, reload_all)
-    plot_temperatures(
-        download_dir,
-        start_date=start_date,
-        plot_all=plot_all,
-        visual_granularity=visual_granularity,
-    )
+    staging_dir = os.path.join(lake_dir, "staging")
+    bronze_dir = os.path.join(lake_dir, "raw")
+    silver_dir = os.path.join(lake_dir, "processed")
+    for layer_dir in [staging_dir, bronze_dir, silver_dir]:
+        os.makedirs(layer_dir, exist_ok=True)
+
+    extract_files_from_tado_api(start_date, staging_dir, reload_today, reload_all)
+
+    ingest_raw_data(staging_dir, bronze_dir)
+    clean_data(bronze_dir, silver_dir, start_date)
+
+    if plot_all:
+        plot_aggregates(silver_dir, visual_granularity)
 
 
 @click.command()
 @click.option("--start_date", default=ONE_WEEK_AGO, help="Start date for the data")
-@click.option(
-    "--download_dir", default=DOWNLOAD_DIR, help="Directory to download data to"
-)
+@click.option("--lake_dir", default=LAKE_DIR, help="Directory where to store the data")
 @click.option("--plot_all", default=True, help="Plot all temperatures")
 @click.option("--reload_today", default=True, help="Reload today's data")
 @click.option("--reload_all", default=False, help="Reload all data")
