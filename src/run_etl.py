@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 
 import click
 
-from src.stages.compute_quality_metrics import compute_quality_metrics
 from src.stages.extract_thermostat import extract_files_from_tado_api
 from src.visualise.temperatures import (
     Granularity,

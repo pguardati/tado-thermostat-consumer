@@ -28,6 +28,7 @@ pre-commit run --all-files
 # Usage
 ```
 python src/run_etl.py --start_date 2023-05-18 --reload_today=True
+python src/run_metrics_computation.py
 ```
 
 
