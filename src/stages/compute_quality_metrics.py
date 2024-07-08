@@ -8,14 +8,14 @@ def compute_data_freshness(temperatures, params):
     df = temperatures.copy()
     metrics = {}
 
-    # Completeness
+    # Completeness - check nans and zeros
     metrics["missing_values"] = df.isnull().sum()
 
-    # Consistency
+    # Consistency - check for consisten deltas
     time_diffs = df["time"].diff().dropna()
     metrics["time_differences"] = time_diffs.value_counts()
 
-    # Accuracy
+    # Accuracy - check for outliers
     temperature_stats = df["temperature"].describe()
     metrics["temperature_stats"] = temperature_stats
 
@@ -26,16 +26,16 @@ def compute_data_freshness(temperatures, params):
     ]
     metrics["anomalies"] = anomalies
 
-    # Timeliness
+    # Timeliness - check for delays
     now = datetime.now(timezone.utc)
     df["delay"] = (now - df["time"]).dt.total_seconds() / 3600  # Delay in hours
     metrics["delays"] = df[["time", "delay"]]
 
-    # Uniqueness
+    # Uniqueness - check for duplicates
     duplicate_records = df[df.duplicated()]
     metrics["duplicate_records"] = duplicate_records
 
-    # Integrity
+    # Integrity - check for correct data types
     data_types = df.dtypes
     metrics["data_types"] = data_types
     correct_format = pd.to_datetime(df["time"], errors="coerce").notnull().all()
