@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 import click
 
+from src.stages.compute_quality_metrics import compute_quality_metrics
 from src.stages.extract_thermostat import extract_files_from_tado_api
 from src.visualise_temperatures import (
     Granularity,
@@ -38,14 +39,16 @@ def main(
     if plot_temperatures:
         _visualise_temperatures(silver_dir, visual_granularity)
 
-    if plot_all:
-        plot_aggregates(silver_dir, visual_granularity)
+    if plot_quality_metrics:
+        compute_quality_metrics(silver_dir)
+        raise Exception("Not implemented")
 
 
 @click.command()
 @click.option("--start_date", default=ONE_WEEK_AGO, help="Start date for the data")
 @click.option("--lake_dir", default=LAKE_DIR, help="Directory where to store the data")
 @click.option("--plot_temperatures", default=False, help="Plot temperatures")
+@click.option("--plot_quality_metrics", default=True, help="Plot quality metrics")
 @click.option("--reload_today", default=True, help="Reload today's data")
 @click.option("--reload_all", default=False, help="Reload all data")
 @click.option(
