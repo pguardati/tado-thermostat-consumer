@@ -6,6 +6,15 @@ import pandas as pd
 from src.common import read_parquet_write_parquet
 
 
+def resample(df, granularity="10T", time_column="time"):
+    _df = df.copy()
+    _df[time_column] = _df[time_column] + pd.to_timedelta(
+        _df.groupby(time_column).cumcount(), unit="ms"
+    )
+    _df = _df.set_index(time_column).resample(granularity).ffill().reset_index()
+    return _df
+
+
 @read_parquet_write_parquet
 def clean_temperatures(df, params):
     columns = [
@@ -15,11 +24,10 @@ def clean_temperatures(df, params):
     _df = df.copy()
     _start_date = params["start_date"]
 
-    _df = _df.set_index("time")
-    _df = _df[_df.index > _start_date]
-    _df = _df.sort_values(by=["time"])
+    _df = _df[_df["time"] > _start_date]
 
-    _df = _df.reset_index()
+    _df = resample(_df)
+    _df = _df.sort_values(by=["time"])
     _df = _df[columns]
     return _df
 
@@ -28,7 +36,6 @@ def clean_temperatures(df, params):
 def clean_targets(df, params):
     columns = [
         "time",
-        "id",
         "temperature",
     ]
     _df = df.copy()
@@ -55,12 +62,9 @@ def clean_targets(df, params):
             }
         )
     _df2 = pd.DataFrame(_targets_ref) if _targets_ref else pd.DataFrame(columns=columns)
-    _df2 = _df2.sort_values(
-        by=[
-            "time",
-            "id",
-        ]
-    )
+
+    _df2 = resample(_df2)
+    _df2 = _df2.sort_values(by=["time"])
     _df2 = _df2[columns]
     return _df2
 
@@ -69,7 +73,6 @@ def clean_targets(df, params):
 def clean_intensity(df, params):
     columns = [
         "time",
-        "id",
         "intensity",
     ]
     _df = df.copy()
@@ -101,12 +104,9 @@ def clean_intensity(df, params):
         if _intensity_ref
         else pd.DataFrame(columns=columns)
     )
-    _df2 = _df2.sort_values(
-        by=[
-            "time",
-            "id",
-        ]
-    )
+
+    _df2 = resample(_df2)
+    _df2 = _df2.sort_values(by=["time"])
     _df2 = _df2[columns]
     return _df2
 

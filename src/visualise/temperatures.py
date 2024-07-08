@@ -14,6 +14,16 @@ class Granularity(enum.Enum):
     MONTH = "month"
 
 
+def on_ax_change(ax):
+    """if you zoom one plot, the other will follow"""
+
+    def _on_ax_change(event_ax):
+        if event_ax != ax:
+            ax.set_xlim(event_ax.get_xlim())
+
+    return _on_ax_change
+
+
 def _use_common_ax_settings(ax, granularity=Granularity.MONTH):
     if granularity == Granularity.MONTH:
         _g = mdates.MonthLocator()
@@ -78,18 +88,18 @@ def color_seasons(ax, _t):
     )
 
 
-def _plot_measurements_vs_targets(ax, _t, _c, visual_granularity):
-    start_time = _t["time"].min().strftime("%Y-%m-%d")
+def _plot_measurements_vs_targets(ax, _a, visual_granularity):
+    start_time = _a["time"].min().strftime("%Y-%m-%d")
     ax.set_title(f"Living Room Temperatures since {start_time}")
-    ax.plot(_t["time"], _t["temperature"], label="measured", color="blue")
-    ax.plot(_c["time"], _c["temperature"], label="target", color="red")
+    ax.plot(_a["time"], _a["measured"], label="measured", color="blue")
+    ax.plot(_a["time"], _a["target"], label="target", color="red")
     _use_common_ax_settings(ax, granularity=visual_granularity)
-    color_seasons(ax, _t)
+    color_seasons(ax, _a)
 
 
-def _plot_heaters_intensity(ax, _h, visual_granularity):
+def _plot_heaters_intensity(ax, _a, visual_granularity):
     ax.set_title("Heaters Intensity")
-    ax.plot(_h["time"], _h["intensity"], label="intensity", color="green")
+    ax.plot(_a["time"], _a["intensity"], label="intensity", color="green")
     ax.yaxis.set_major_locator(mdates.AutoDateLocator())
     ax.set_yticks([0, 1, 2, 3])
     ax.set_yticklabels(["NONE", "LOW", "MEDIUM", "HIGH"])
@@ -102,9 +112,25 @@ def _visualise_temperatures(golden_dir, visual_granularity):
     _c = pd.read_parquet(os.path.join(golden_dir, "targets.parquet"))
     _h = pd.read_parquet(os.path.join(golden_dir, "intensity.parquet"))
 
+    # create aggregated view
+    _t = _t.rename(columns={"temperature": "measured"})
+    _c = _c.rename(columns={"temperature": "target"})
+    _a = pd.merge(
+        _t,
+        _c,
+        on="time",
+        how="left",
+    ).merge(
+        _h,
+        on="time",
+        how="left",
+    )
+
     # plot
     fig, axes = plt.subplots(2, 1)
-    _plot_measurements_vs_targets(axes[0], _t, _c, visual_granularity)
-    _plot_heaters_intensity(axes[1], _h, visual_granularity)
+    _plot_measurements_vs_targets(axes[0], _a, visual_granularity)
+    _plot_heaters_intensity(axes[1], _a, visual_granularity)
     axes[1].set_xlim(axes[0].get_xlim())
+    axes[0].callbacks.connect("xlim_changed", on_ax_change(axes[1]))
+    axes[1].callbacks.connect("xlim_changed", on_ax_change(axes[0]))
     plt.show()
