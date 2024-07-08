@@ -98,7 +98,7 @@ def _plot_heaters_intensity(ax, _h, visual_granularity):
 
 def _visualise_temperatures(golden_dir, visual_granularity):
     # read
-    _t = pd.read_parquet(os.path.join(golden_dir, "temperatures.parquet"))
+    _t = pd.read_parquet(os.path.join(golden_dir, "visualise.parquet"))
     _c = pd.read_parquet(os.path.join(golden_dir, "targets.parquet"))
     _h = pd.read_parquet(os.path.join(golden_dir, "intensity.parquet"))
 
