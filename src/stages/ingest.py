@@ -64,7 +64,7 @@ def get_daily_intensity(raw_row):
     return _daily_data
 
 
-def ingest_raw_data(source_dir, destination_dir):
+def ingest_thermostat_data(source_dir, destination_dir):
     print("\nCleaning data...")
     get_daily_temperature(
         source_dir, destination_dir, file_name_destination="temperatures"

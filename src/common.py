@@ -5,7 +5,7 @@ import pandas as pd
 
 
 def write_to_parquet(dataframe, destination_dir, file_name):
-    dataframe.to_parquet(os.path.join(destination_dir, f"{file_name}.parquet"))
+    dataframe.to_parquet(os.path.join(destination_dir, f"{file_name}.parquet"), index=False)
 
 
 def read_parquet_file(source_dir, file_name):

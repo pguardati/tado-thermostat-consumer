@@ -14,5 +14,4 @@ __pycache__/
 /.env
 
 data/
-a0_tmp/
-/tmp/
+**tmp/

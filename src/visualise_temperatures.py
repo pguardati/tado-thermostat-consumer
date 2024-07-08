@@ -29,8 +29,8 @@ def _use_common_ax_settings(ax, granularity=Granularity.MONTH):
 
 def color_seasons(ax, _t):
     # Extract the minimum and maximum dates from the data
-    start_date = _t.index.min().date()
-    end_date = _t.index.max().date()
+    start_date = _t["time"].min().date()
+    end_date = _t["time"].max().date()
 
     # Define season colors
     season_colors = {
@@ -79,25 +79,24 @@ def color_seasons(ax, _t):
 
 
 def _plot_measurements_vs_targets(ax, _t, _c, visual_granularity):
-    ax.set_title(
-        f"Living Room Temperatures since {_t.index.min().strftime('%Y-%m-%d')}"
-    )
-    ax.plot(_t.index, _t["temperature"], label="measured", color="blue")
-    ax.plot(_c.index, _c["temperature"], label="target", color="red")
+    start_time = _t["time"].min().strftime("%Y-%m-%d")
+    ax.set_title(f"Living Room Temperatures since {start_time}")
+    ax.plot(_t["time"], _t["temperature"], label="measured", color="blue")
+    ax.plot(_c["time"], _c["temperature"], label="target", color="red")
     _use_common_ax_settings(ax, granularity=visual_granularity)
     color_seasons(ax, _t)
 
 
 def _plot_heaters_intensity(ax, _h, visual_granularity):
     ax.set_title("Heaters Intensity")
-    ax.plot(_h.index, _h["intensity"], label="intensity", color="green")
+    ax.plot(_h["time"], _h["intensity"], label="intensity", color="green")
     ax.yaxis.set_major_locator(mdates.AutoDateLocator())
     ax.set_yticks([0, 1, 2, 3])
     ax.set_yticklabels(["NONE", "LOW", "MEDIUM", "HIGH"])
     _use_common_ax_settings(ax, granularity=visual_granularity)
 
 
-def plot_aggregates(golden_dir, visual_granularity):
+def _visualise_temperatures(golden_dir, visual_granularity):
     # read
     _t = pd.read_parquet(os.path.join(golden_dir, "temperatures.parquet"))
     _c = pd.read_parquet(os.path.join(golden_dir, "targets.parquet"))
