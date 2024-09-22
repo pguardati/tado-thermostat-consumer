@@ -57,20 +57,20 @@ def clean_targets(df, params):
 
     # TODO: unify key and resample
     # add cumulative delta to time to deduplicate
-    _df2["time"] = _df2["time"] + pd.to_timedelta(
-        _df2.groupby("time").cumcount(), unit="ms"
-    )
-    # resample each minute
-    _df2 = _df2.set_index("time")
-    _df2 = _df2.resample("1T").ffill()
-    _df2 = _df2.reset_index()
-    # plot - there is something like this in the original code
-    import matplotlib.pyplot as plt
-
-    fig, ax = plt.subplots()
-    ax.plot(_df2["time"], _df2["temperature"], label="target", color="red", marker="o")
-    ax.set_title("Targets")
-    plt.show()
+    # _df2["time"] = _df2["time"] + pd.to_timedelta(
+    #     _df2.groupby("time").cumcount(), unit="ms"
+    # )
+    # # resample each minute
+    # _df2 = _df2.set_index("time")
+    # _df2 = _df2.resample("1T").ffill()
+    # _df2 = _df2.reset_index()
+    # # plot - there is something like this in the original code
+    # import matplotlib.pyplot as plt
+    #
+    # fig, ax = plt.subplots()
+    # ax.plot(_df2["time"], _df2["temperature"], label="target", color="red", marker="o")
+    # ax.set_title("Targets")
+    # plt.show()
 
     _df2 = _df2.sort_values(by=["time"])
     _df2 = _df2[columns]

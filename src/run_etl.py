@@ -11,7 +11,7 @@ from src.visualise.temperatures import (
 from src.stages.ingest import ingest_thermostat_data
 from src.stages.clean_thermostat import clean_thermostat_data
 
-ONE_WEEK_AGO = (datetime.now() - timedelta(days=150)).date()
+ONE_WEEK_AGO = (datetime.now() - timedelta(days=480)).date()
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LAKE_DIR = os.path.join(PROJECT_DIR, "data")
 
