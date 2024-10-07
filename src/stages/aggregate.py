@@ -6,7 +6,6 @@ import pandas as pd
 from src.common import read_parquet_write_parquet
 
 
-@read_parquet_write_parquet
 def aggregate_temperatures(df, params):
     _df = df.copy()
     _start_date = params["start_date"]
@@ -17,7 +16,6 @@ def aggregate_temperatures(df, params):
     return _df
 
 
-@read_parquet_write_parquet
 def aggregate_targets(df, params):
     _df = df.copy()
     _start_date = params["start_date"]
@@ -48,7 +46,6 @@ def aggregate_targets(df, params):
     return _df2
 
 
-@read_parquet_write_parquet
 def aggregate_intensity(df, params):
     _df = df.copy()
     _start_date = params["start_date"]
