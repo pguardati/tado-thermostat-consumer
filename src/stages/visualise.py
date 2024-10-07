@@ -1,10 +1,8 @@
 import enum
-import os
 from datetime import datetime
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
-import pandas as pd
 
 plt.switch_backend("TkAgg")
 
@@ -29,8 +27,8 @@ def _use_common_ax_settings(ax, granularity=Granularity.MONTH):
 
 def color_seasons(ax, _t):
     # Extract the minimum and maximum dates from the data
-    start_date = _t.index.min().date()
-    end_date = _t.index.max().date()
+    start_date = _t["time"].min().date()
+    end_date = _t["time"].max().date()
 
     # Define season colors
     season_colors = {
@@ -78,34 +76,45 @@ def color_seasons(ax, _t):
     )
 
 
-def _plot_measurements_vs_targets(ax, _t, _c, visual_granularity):
-    ax.set_title(
-        f"Living Room Temperatures since {_t.index.min().strftime('%Y-%m-%d')}"
+def _plot_view(_v, visual_granularity):
+    plt.style.use("dark_background")
+    fig, ax = plt.subplots(2, 1, sharex=True)
+
+    # plot temperature
+    ax[0].plot(_v["time"], _v["temperature_value"], label="measured", color="blue")
+    ax[0].scatter(
+        _v["temperature_time_raw"],
+        _v["temperature_value"],
+        label="target",
+        color="blue",
+        marker="o",
+        s=10,
     )
-    ax.plot(_t.index, _t["temperature"], label="measured", color="blue")
-    ax.plot(_c.index, _c["temperature"], label="target", color="red")
-    _use_common_ax_settings(ax, granularity=visual_granularity)
-    color_seasons(ax, _t)
 
+    # plot targets
+    ax[0].plot(_v["time"], _v["target_value"], label="measured", color="red")
+    ax[0].scatter(
+        _v["target_time_raw"],
+        _v["target_value"],
+        label="target",
+        color="red",
+        marker="o",
+        s=10,
+    )
+    _use_common_ax_settings(ax[0], granularity=visual_granularity)
+    color_seasons(ax[0], _v)
 
-def _plot_heaters_intensity(ax, _h, visual_granularity):
-    ax.set_title("Heaters Intensity")
-    ax.plot(_h.index, _h["intensity"], label="intensity", color="green")
-    ax.yaxis.set_major_locator(mdates.AutoDateLocator())
-    ax.set_yticks([0, 1, 2, 3])
-    ax.set_yticklabels(["NONE", "LOW", "MEDIUM", "HIGH"])
-    _use_common_ax_settings(ax, granularity=visual_granularity)
+    # plot intensity
+    ax[1].plot(_v["time"], _v["intensity_value"], label="intensity", color="green")
+    ax[1].scatter(
+        _v["intensity_time_raw"],
+        _v["intensity_value"],
+        label="intensity",
+        color="green",
+        marker="o",
+        s=10,
+    )
+    _use_common_ax_settings(ax[1], granularity=visual_granularity)
+    color_seasons(ax[1], _v)
 
-
-def plot_aggregates(golden_dir, visual_granularity):
-    # read
-    _t = pd.read_parquet(os.path.join(golden_dir, "temperatures.parquet"))
-    _c = pd.read_parquet(os.path.join(golden_dir, "targets.parquet"))
-    _h = pd.read_parquet(os.path.join(golden_dir, "intensity.parquet"))
-
-    # plot
-    fig, axes = plt.subplots(2, 1)
-    _plot_measurements_vs_targets(axes[0], _t, _c, visual_granularity)
-    _plot_heaters_intensity(axes[1], _h, visual_granularity)
-    axes[1].set_xlim(axes[0].get_xlim())
     plt.show()

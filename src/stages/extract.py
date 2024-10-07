@@ -6,6 +6,8 @@ from datetime import datetime
 import pandas as pd
 import requests
 
+PARTITION_NAME = "%Y-%m-%d"
+
 
 def get_token(client_secret):
     url = "https://auth.tado.com/oauth/token"
@@ -63,7 +65,7 @@ def _get_historic_data(
     reload_all,
 ):
     def _delete_today_data(date):
-        if date.strftime("%Y-%m-%d") == datetime.now().strftime("%Y-%m-%d"):
+        if date.strftime(PARTITION_NAME) == datetime.now().strftime(PARTITION_NAME):
             file = os.path.join(download_dir, f"historic_data_{date}.json")
             if os.path.isfile(file):
                 os.remove(file)
@@ -71,16 +73,19 @@ def _get_historic_data(
 
     def _get_missing_daily_data(date):
         file = os.path.join(download_dir, f"historic_data_{date}.json")
-        if os.path.isfile(file) and not reload_all:
+        file_with_different_time_format = file.replace("00:00:00", "00_00_00")
+        if (
+            os.path.isfile(file) or os.path.isfile(file_with_different_time_format)
+        ) and not reload_all:
             print(f"historic_data_{date}.json already exists")
         else:
             print(f"Getting data for {date}")
-            date = date.strftime("%Y-%m-%d")
+            date = date.strftime(PARTITION_NAME)
             historic_data = get_daily_data(token, home_id, zone_id, date)
             with open(file, "w") as f:
                 json.dump(historic_data, f)
 
-    end_date = datetime.now().strftime("%Y-%m-%d")
+    end_date = datetime.now().strftime(PARTITION_NAME)
     print(f"Getting data from {start_date} to {end_date}")
     for date in pd.date_range(start_date, end_date):
         if reload_today:

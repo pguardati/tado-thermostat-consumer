@@ -1,91 +1,55 @@
-import os
-from datetime import datetime
-
 import pandas as pd
 
-from src.common import read_parquet_write_parquet
 
+def generate_aggregate_view(
+    _dates,
+    _temperature,
+    _targets,
+    _intensity,
+):
+    _d = _dates.copy()[["time"]]
+    _t = _temperature.copy()[["time", "time_raw", "value"]]
+    _tr = _targets.copy()[["time", "time_raw", "value"]]
+    _i = _intensity.copy()[["time", "time_raw", "value"]]
 
-@read_parquet_write_parquet
-def aggregate_temperatures(df, params):
-    _df = df.copy()
-    _start_date = params["start_date"]
-
-    _df = _df.set_index("time")
-    _df = _df[_df.index > _start_date]
-    _df = _df.sort_values(by=["time"])
-    return _df
-
-
-@read_parquet_write_parquet
-def aggregate_targets(df, params):
-    _df = df.copy()
-    _start_date = params["start_date"]
-
-    _df = _df.sort_values(by=["start"])
-    bigger_than_start_date = _df["start"] > _start_date
-    _df = _df[bigger_than_start_date]
-    _df = _df.reset_index(drop=True)
-    _targets_ref = []
-    for i, row in _df.iterrows():
-        _targets_ref.append(
-            {
-                "id": i,
-                "time": row["start"],
-                "temperature": row["temperature"],
-            }
-        )
-        _targets_ref.append(
-            {
-                "id": i,
-                "time": row["end"],
-                "temperature": row["temperature"],
-            }
-        )
-    _df2 = pd.DataFrame(_targets_ref)
-    _df2 = _df2.sort_values(by=["time", "id"])
-    _df2 = _df2.set_index("time")
-    return _df2
-
-
-@read_parquet_write_parquet
-def aggregate_intensity(df, params):
-    _df = df.copy()
-    _start_date = params["start_date"]
-
-    _df = _df.sort_values(by=["start"])
-    bigger_than_start_date = _df["start"] > _start_date
-    after_heaters_on = _df["start"] > datetime(2023, 11, 21).date().isoformat()
-    _df = _df[bigger_than_start_date & after_heaters_on]
-    _df = _df.reset_index(drop=True)
-    _intensity_ref = []
-    for i, row in _df.iterrows():
-        _intensity_ref.append(
-            {
-                "id": i,
-                "time": row["start"],
-                "intensity": row["intensity"],
-            }
-        )
-        _intensity_ref.append(
-            {
-                "id": i,
-                "time": row["end"],
-                "intensity": row["intensity"],
-            }
-        )
-    _df2 = pd.DataFrame(_intensity_ref)
-    _df2 = _df2.sort_values(by=["time", "id"])
-    _df2 = _df2.set_index("time")
-    return _df2
-
-
-# Usage
-def clean_data(source_dir, destination_dir, start_date):
-    print("\nAggregating data...")
-    params = {"start_date": start_date}
-    aggregate_temperatures(
-        source_dir, destination_dir, "temperatures", "temperatures", params
+    # merge temperatures
+    _view = pd.merge(_d, _t, on="time", how="left")
+    _view = _view.rename(
+        columns={
+            "value": "temperature_value",
+            "time_raw": "temperature_time_raw",
+        },
     )
-    aggregate_targets(source_dir, destination_dir, "targets", "targets", params)
-    aggregate_intensity(source_dir, destination_dir, "intensity", "intensity", params)
+
+    # merge targets
+    _view = pd.merge(_view, _tr, on="time", how="left")
+    _view = _view.rename(
+        columns={
+            "value": "target_value",
+            "time_raw": "target_time_raw",
+        },
+    )
+
+    # merge intensity
+    _view = pd.merge(_view, _i, on="time", how="left")
+    _view = _view.rename(
+        columns={
+            "value": "intensity_value",
+            "time_raw": "intensity_time_raw",
+        },
+    )
+
+    _view = _view.ffill()
+    _view = _view.bfill()
+    _view = _view[
+        [
+            "time",
+            "temperature_value",
+            "temperature_time_raw",
+            "target_value",
+            "target_time_raw",
+            "intensity_value",
+            "intensity_time_raw",
+        ]
+    ]
+    return _view
