@@ -1,7 +1,5 @@
 import pandas as pd
 
-from src.common import read_jsonlist_write_parquet
-
 
 def get_daily_temperature(raw_row):
     temperatures = raw_row["measuredData"]["insideTemperature"]["dataPoints"]

@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 
 import click
 from src.stages.extract import extract_files_from_tado_api
-from src.visualise import (
+from src.stages.visualise import (
     plot_aggregates,
     Granularity,
 )

@@ -1,9 +1,6 @@
-import os
 from datetime import datetime
 
 import pandas as pd
-
-from src.common import read_parquet_write_parquet
 
 
 def aggregate_temperatures(df, params):
@@ -77,12 +74,3 @@ def aggregate_intensity(df, params):
     return _df2
 
 
-# Usage
-def clean_data(source_dir, destination_dir, start_date):
-    print("\nAggregating data...")
-    params = {"start_date": start_date}
-    aggregate_temperatures(
-        source_dir, destination_dir, "temperatures", "temperatures", params
-    )
-    aggregate_targets(source_dir, destination_dir, "targets", "targets", params)
-    aggregate_intensity(source_dir, destination_dir, "intensity", "intensity", params)
