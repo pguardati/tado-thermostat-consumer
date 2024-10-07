@@ -97,15 +97,16 @@ def _plot_heaters_intensity(ax, _h, visual_granularity):
     _use_common_ax_settings(ax, granularity=visual_granularity)
 
 
-def plot_aggregates(golden_dir, visual_granularity):
-    # read
-    _t = pd.read_parquet(os.path.join(golden_dir, "temperatures.parquet"))
-    _c = pd.read_parquet(os.path.join(golden_dir, "targets.parquet"))
-    _h = pd.read_parquet(os.path.join(golden_dir, "intensity.parquet"))
-
-    # plot
+def _plot_aggregates(_t, _c, _h, visual_granularity):
     fig, axes = plt.subplots(2, 1)
     _plot_measurements_vs_targets(axes[0], _t, _c, visual_granularity)
     _plot_heaters_intensity(axes[1], _h, visual_granularity)
     axes[1].set_xlim(axes[0].get_xlim())
     plt.show()
+
+
+def plot_aggregates(golden_dir, visual_granularity):
+    _t = pd.read_parquet(os.path.join(golden_dir, "temperatures.parquet"))
+    _c = pd.read_parquet(os.path.join(golden_dir, "targets.parquet"))
+    _h = pd.read_parquet(os.path.join(golden_dir, "intensity.parquet"))
+    _plot_aggregates(_t, _c, _h, visual_granularity)

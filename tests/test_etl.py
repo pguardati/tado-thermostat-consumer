@@ -12,7 +12,7 @@ from src.stages.ingest import (
     get_daily_targets,
     get_daily_temperature,
 )
-from src.visualise import plot_aggregates
+from src.visualise import plot_aggregates, _plot_aggregates
 
 current_file_path = Path(__name__).resolve()
 test_dir = current_file_path.parent / "resources" / "test_etl"
@@ -43,3 +43,4 @@ def _run_serial_etl(staging_dir):
 
 def test_etl():
     _temperature, _targets, _intensity = _run_serial_etl(staging_dir)
+    _plot_aggregates(_temperature, _targets, _intensity, "daily")
