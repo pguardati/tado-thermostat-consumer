@@ -7,9 +7,11 @@ def aggregate_temperatures(df, params):
     _df = df.copy()
     _start_date = params["start_date"]
 
-    _df = _df.set_index("time")
-    _df = _df[_df.index > _start_date]
+    _df = _df[_df["time"] > _start_date]
+
     _df = _df.sort_values(by=["time"])
+
+    _df["time"] = pd.to_datetime(_df["time"])
     return _df
 
 

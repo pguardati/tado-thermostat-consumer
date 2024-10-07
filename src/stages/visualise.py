@@ -29,8 +29,8 @@ def _use_common_ax_settings(ax, granularity=Granularity.MONTH):
 
 def color_seasons(ax, _t):
     # Extract the minimum and maximum dates from the data
-    start_date = _t.index.min().date()
-    end_date = _t.index.max().date()
+    start_date = _t["time"].min().date()
+    end_date = _t["time"].max().date()
 
     # Define season colors
     season_colors = {
@@ -80,9 +80,9 @@ def color_seasons(ax, _t):
 
 def _plot_measurements_vs_targets(ax, _t, _c, visual_granularity):
     ax.set_title(
-        f"Living Room Temperatures since {_t.index.min().strftime('%Y-%m-%d')}"
+        f"Living Room Temperatures since {_t['time'].min().strftime('%Y-%m-%d')}"
     )
-    ax.plot(_t.index, _t["temperature"], label="measured", color="blue")
+    ax.plot(_t["time"], _t["temperature"], label="measured", color="blue")
     ax.plot(_c.index, _c["temperature"], label="target", color="red")
     _use_common_ax_settings(ax, granularity=visual_granularity)
     color_seasons(ax, _t)
