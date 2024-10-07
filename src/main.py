@@ -10,7 +10,7 @@ from src.visualise import (
 from src.stages.ingest import ingest_raw_data
 from src.stages.aggregate import clean_data
 
-ONE_WEEK_AGO = (datetime.now() - timedelta(days=100)).date()
+START_TIME = (datetime.now() - timedelta(days=300)).date()
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LAKE_DIR = os.path.join(PROJECT_DIR, "data")
 
@@ -39,7 +39,7 @@ def main(
 
 
 @click.command()
-@click.option("--start_date", default=ONE_WEEK_AGO, help="Start date for the data")
+@click.option("--start_date", default=START_TIME, help="Start date for the data")
 @click.option("--lake_dir", default=LAKE_DIR, help="Directory where to store the data")
 @click.option("--plot_all", default=True, help="Plot all temperatures")
 @click.option("--reload_today", default=True, help="Reload today's data")
