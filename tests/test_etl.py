@@ -20,24 +20,17 @@ staging_dir = test_dir / "staging"
 
 
 def _run_serial_etl(staging_dir):
+    start_date = {"start_date": "2023-11-21"}
     raw_row = read_json_files(staging_dir)
 
     _intensity_raw = pd.concat([get_daily_intensity(data) for data in raw_row])
     _targets_raw = pd.concat([get_daily_targets(data) for data in raw_row])
     _temperature_raw = pd.concat([get_daily_temperature(data) for data in raw_row])
 
-    _intensity_agg = aggregate_intensity(
-        _intensity_raw,
-        {"start_date": "2023-11-21"},
-    )
-    _targets_agg = aggregate_targets(
-        _targets_raw,
-        {"start_date": "2023-11-21"},
-    )
-    _temperature_agg = aggregate_temperatures(
-        _temperature_raw,
-        {"start_date": "2023-11-21"},
-    )
+    _intensity_agg = aggregate_intensity(_intensity_raw, start_date)
+    _targets_agg = aggregate_targets(_targets_raw, start_date)
+    _temperature_agg = aggregate_temperatures(_temperature_raw, start_date)
+
     return _temperature_agg, _targets_agg, _intensity_agg
 
 
