@@ -83,7 +83,7 @@ def _plot_measurements_vs_targets(ax, _t, _c, visual_granularity):
         f"Living Room Temperatures since {_t['time'].min().strftime('%Y-%m-%d')}"
     )
     ax.plot(_t["time"], _t["temperature"], label="measured", color="blue")
-    ax.plot(_c.index, _c["temperature"], label="target", color="red")
+    ax.plot(_c["time"], _c["temperature"], label="target", color="red")
     _use_common_ax_settings(ax, granularity=visual_granularity)
     color_seasons(ax, _t)
 

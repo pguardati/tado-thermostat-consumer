@@ -7,10 +7,13 @@ def aggregate_temperatures(df, params):
     _df = df.copy()
     _start_date = params["start_date"]
 
+    # filter
     _df = _df[_df["time"] > _start_date]
 
+    # sort
     _df = _df.sort_values(by=["time"])
 
+    # time conversion
     _df["time"] = pd.to_datetime(_df["time"])
     return _df
 
@@ -19,10 +22,11 @@ def aggregate_targets(df, params):
     _df = df.copy()
     _start_date = params["start_date"]
 
+    # filter
+    _df = _df[_df["start"] > _start_date]
+
+    # extract squares from points
     _df = _df.sort_values(by=["start"])
-    bigger_than_start_date = _df["start"] > _start_date
-    _df = _df[bigger_than_start_date]
-    _df = _df.reset_index(drop=True)
     _targets_ref = []
     for i, row in _df.iterrows():
         _targets_ref.append(
@@ -40,8 +44,9 @@ def aggregate_targets(df, params):
             }
         )
     _df2 = pd.DataFrame(_targets_ref)
+
+    # sort
     _df2 = _df2.sort_values(by=["time", "id"])
-    _df2 = _df2.set_index("time")
     return _df2
 
 
