@@ -57,4 +57,3 @@ def get_daily_intensity(raw_row):
     _daily_data["end"] = pd.to_datetime(_daily_data["end"])
     _daily_data["intensity"] = _daily_data["intensity"].astype(int)
     return _daily_data
-
