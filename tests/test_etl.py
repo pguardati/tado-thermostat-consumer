@@ -12,14 +12,14 @@ from src.stages.ingest import (
     get_daily_targets,
     get_daily_temperature,
 )
-from src.stages.visualise import _plot_aggregates, Granularity
+from src.stages.visualise import _plot_aggregates, Granularity, _plot_temperatures
 
 current_file_path = Path(__name__).resolve()
 test_dir = current_file_path.parent / "resources" / "test_etl"
 staging_dir = test_dir / "staging"
 
 
-def _run_serial_etl(staging_dir):
+def _run_serial_legacy_etl(staging_dir):
     start_date = {"start_date": "2023-11-21"}
     raw_row = read_json_files(staging_dir)
 
@@ -34,6 +34,26 @@ def _run_serial_etl(staging_dir):
     return _temperature_agg, _targets_agg, _intensity_agg
 
 
-def test_etl():
-    _temperature, _targets, _intensity = _run_serial_etl(staging_dir)
+def test_legacy_etl():
+    _temperature, _targets, _intensity = _run_serial_legacy_etl(staging_dir)
     _plot_aggregates(_temperature, _targets, _intensity, Granularity.MONTH)
+
+
+def _run_serial_new_etl(staging_dir):
+    start_date = {"start_date": "2023-11-21"}
+    raw_row = read_json_files(staging_dir)
+
+    _temperature_raw = pd.concat([get_daily_temperature(data) for data in raw_row])
+    _targets_raw = pd.concat([get_daily_targets(data) for data in raw_row])
+    _intensity_raw = pd.concat([get_daily_intensity(data) for data in raw_row])
+
+    _temperature_agg = aggregate_temperatures(_temperature_raw, start_date)
+    _targets_agg = None
+    _intensity_agg = None
+
+    return _temperature_agg, _targets_agg, _intensity_agg
+
+
+def test_new_etl():
+    _temperature, _targets, _intensity = _run_serial_new_etl(staging_dir)
+    _plot_temperatures(_temperature, Granularity.MONTH)

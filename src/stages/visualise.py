@@ -103,3 +103,11 @@ def _plot_aggregates(_t, _c, _h, visual_granularity):
     _plot_heaters_intensity(axes[1], _h, visual_granularity)
     axes[1].set_xlim(axes[0].get_xlim())
     plt.show()
+
+
+def _plot_temperatures(_v, visual_granularity):
+    fig, ax = plt.subplots()
+    ax.plot(_v["time"], _v["temperature"], label="measured", color="blue")
+    _use_common_ax_settings(ax, granularity=visual_granularity)
+    color_seasons(ax, _v)
+    plt.show()
