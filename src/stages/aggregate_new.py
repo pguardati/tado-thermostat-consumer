@@ -11,6 +11,18 @@ def get_master_dates(start_date, days=90):
     return dates
 
 
-def aggregate_temperatures_new(df, dates):
-    # TODO: resample and merge on date
-    pass
+def clean_temperatures(temperatures):
+    COLUMNS_INPUT = ["time", "temperature"]
+    COLUMNS_OUTPUT = ["time", "time_raw", "temperature"]
+    _t = temperatures.copy()
+
+    _t = _t[COLUMNS_INPUT]
+    _t["time"] = pd.to_datetime(_t["time"])
+
+    _t["time_raw"] = _t["time"]
+    _t_res = _t.set_index("time").resample("30s").mean()
+    _t_res = _t_res.reset_index()
+    _t_res["temperature"] = _t_res["temperature"].ffill()
+
+    _t_clean = _t_res[COLUMNS_OUTPUT]
+    return _t_clean
