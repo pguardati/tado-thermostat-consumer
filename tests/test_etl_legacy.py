@@ -20,7 +20,7 @@ staging_dir = test_dir / "staging"
 
 
 def _run_serial_legacy_etl(staging_dir):
-    start_date = {"start_date": "2023-11-21"}
+    start_date = {"start_date": "2024-03-01"}
     raw_row = read_json_files(staging_dir)
 
     _temperature_raw = pd.concat([get_daily_temperature(data) for data in raw_row])

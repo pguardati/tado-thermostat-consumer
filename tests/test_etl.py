@@ -34,7 +34,7 @@ def _run_serial_new_etl(staging_dir):
     _intensity_agg = None
 
     _dates = get_master_dates(start_date["start_date"])
-    _view = generate_view(_temperature_agg, _dates)
+    _view = generate_view(_temperature_agg, _targets_agg, _dates)
 
     return _view
 

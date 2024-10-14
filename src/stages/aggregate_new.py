@@ -62,7 +62,11 @@ def clean_targets(
     return _t_clean
 
 
-def generate_view(_temperature, _dates):
+def generate_view(
+    _temperature,
+    _targets,
+    _dates,
+):
     _t = _temperature.copy()[["time", "time_raw", "value"]]
     _d = _dates.copy()[["time"]]
 
@@ -74,6 +78,15 @@ def generate_view(_temperature, _dates):
         },
     )
 
+    _tr = _targets.copy()[["time", "time_raw", "value"]]
+    _view = pd.merge(_view, _tr, on="time", how="left")
+    _view = _view.rename(
+        columns={
+            "value": "target_value",
+            "time_raw": "target_time_raw",
+        },
+    )
+
     _view = _view.fillna(method="ffill")
     _view = _view.fillna(method="bfill")
     _view = _view[
@@ -81,6 +94,8 @@ def generate_view(_temperature, _dates):
             "time",
             "temperature_value",
             "temperature_time_raw",
+            "target_value",
+            "target_time_raw",
         ]
     ]
     return _view

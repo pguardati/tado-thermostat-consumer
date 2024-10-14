@@ -107,8 +107,27 @@ def _plot_aggregates(_t, _c, _h, visual_granularity):
 
 def _plot_temperatures(_v, visual_granularity):
     fig, ax = plt.subplots()
+
     ax.plot(_v["time"], _v["temperature_value"], label="measured", color="blue")
-    ax.plot(_v["temperature_time_raw"], _v["temperature_value"], label="target", color="red", marker="o", markersize=2)
+    ax.scatter(
+        _v["temperature_time_raw"],
+        _v["temperature_value"],
+        label="target",
+        color="blue",
+        marker="o",
+        s=10,
+    )
+
+    ax.plot(_v["time"], _v["target_value"], label="measured", color="red")
+    ax.scatter(
+        _v["target_time_raw"],
+        _v["target_value"],
+        label="target",
+        color="red",
+        marker="o",
+        s=10,
+    )
+
     _use_common_ax_settings(ax, granularity=visual_granularity)
     color_seasons(ax, _v)
     plt.show()
