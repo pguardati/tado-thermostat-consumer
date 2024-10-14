@@ -41,3 +41,9 @@ def generate_view(_temperature, _dates):
     _d = _dates.copy()[["time"]]
 
     _view = pd.merge(_d, _t, on="time", how="left")
+    _view = _view.rename(
+        columns={
+            "value": "temperature_value",
+            "time_raw": "temperature_time_raw",
+        },
+    )
