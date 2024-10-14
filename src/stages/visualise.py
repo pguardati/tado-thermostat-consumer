@@ -106,7 +106,8 @@ def _plot_aggregates(_t, _c, _h, visual_granularity):
 
 
 def _plot_temperatures(_v, visual_granularity):
-    fig, ax = plt.subplots(2, 1)
+    plt.style.use('dark_background')
+    fig, ax = plt.subplots(2, 1, sharex=True)
     # plot temperature
     ax[0].plot(_v["time"], _v["temperature_value"], label="measured", color="blue")
     ax[0].scatter(
