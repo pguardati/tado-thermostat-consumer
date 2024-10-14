@@ -63,14 +63,38 @@ def clean_targets(
     return _t_clean
 
 
+def clean_intensity(
+    intensity,
+    sample_time="5T",
+):
+    _i = intensity.copy()[["start", "end", "intensity"]]
+    _i["start"] = pd.to_datetime(_i["start"], utc=True)
+
+    # extract target changes
+    i_clean = []
+    for i, row in _i.iterrows():
+        i_clean.append({"time": row["start"], "intensity": row["intensity"]})
+    _ic = pd.DataFrame(i_clean)
+    _ic = _ic.sort_values(by=["time"]).reset_index(drop=True)
+    _ic = _ic.drop_duplicates(subset=["time"], keep="first")
+
+    _icr = _resample(_ic, sample_time)
+
+    _icr["value"] = _icr["intensity"]
+    _i_clean = _icr[["time", "time_raw", "value"]]
+    return _i_clean
+
+
 def generate_view(
+    _dates,
     _temperature,
     _targets,
-    _dates,
+    _intensity,
 ):
     _d = _dates.copy()[["time"]]
     _t = _temperature.copy()[["time", "time_raw", "value"]]
     _tr = _targets.copy()[["time", "time_raw", "value"]]
+    _i = _intensity.copy()[["time", "time_raw", "value"]]
 
     # merge temperatures
     _view = pd.merge(_d, _t, on="time", how="left")
@@ -90,6 +114,16 @@ def generate_view(
         },
     )
 
+    # merge intensity
+    _view = pd.merge(_view, _i, on="time", how="left")
+    _view = _view.rename(
+        columns={
+            "value": "intensity_value",
+            "time_raw": "intensity_time_raw",
+        },
+    )
+
+
     _view = _view.fillna(method="ffill")
     _view = _view.fillna(method="bfill")
     _view = _view[
@@ -99,6 +133,8 @@ def generate_view(
             "temperature_time_raw",
             "target_value",
             "target_time_raw",
+            "intensity_value",
+            "intensity_time_raw",
         ]
     ]
     return _view

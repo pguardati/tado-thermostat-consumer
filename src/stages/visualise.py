@@ -106,10 +106,10 @@ def _plot_aggregates(_t, _c, _h, visual_granularity):
 
 
 def _plot_temperatures(_v, visual_granularity):
-    fig, ax = plt.subplots()
-
-    ax.plot(_v["time"], _v["temperature_value"], label="measured", color="blue")
-    ax.scatter(
+    fig, ax = plt.subplots(2, 1)
+    # plot temperature
+    ax[0].plot(_v["time"], _v["temperature_value"], label="measured", color="blue")
+    ax[0].scatter(
         _v["temperature_time_raw"],
         _v["temperature_value"],
         label="target",
@@ -117,9 +117,9 @@ def _plot_temperatures(_v, visual_granularity):
         marker="o",
         s=10,
     )
-
-    ax.plot(_v["time"], _v["target_value"], label="measured", color="red")
-    ax.scatter(
+    # plot targets
+    ax[0].plot(_v["time"], _v["target_value"], label="measured", color="red")
+    ax[0].scatter(
         _v["target_time_raw"],
         _v["target_value"],
         label="target",
@@ -127,7 +127,20 @@ def _plot_temperatures(_v, visual_granularity):
         marker="o",
         s=10,
     )
+    _use_common_ax_settings(ax[0], granularity=visual_granularity)
+    color_seasons(ax[0], _v)
 
-    _use_common_ax_settings(ax, granularity=visual_granularity)
-    color_seasons(ax, _v)
+    # plot intensity
+    ax[1].plot(_v["time"], _v["intensity_value"], label="intensity", color="green")
+    ax[1].scatter(
+        _v["intensity_time_raw"],
+        _v["intensity_value"],
+        label="intensity",
+        color="green",
+        marker="o",
+        s=10,
+    )
+    _use_common_ax_settings(ax[1], granularity=visual_granularity)
+    color_seasons(ax[1], _v)
+
     plt.show()

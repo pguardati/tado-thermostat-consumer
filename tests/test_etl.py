@@ -8,6 +8,7 @@ from src.stages.aggregate_new import (
     clean_temperatures,
     generate_view,
     clean_targets,
+    clean_intensity,
 )
 from src.stages.ingest import (
     get_daily_intensity,
@@ -31,10 +32,15 @@ def _run_serial_new_etl(staging_dir):
 
     _temperature_agg = clean_temperatures(_temperature_raw)
     _targets_agg = clean_targets(_targets_raw)
-    _intensity_agg = None
+    _intensity_agg = clean_intensity(_intensity_raw)
 
     _dates = get_master_dates(start_date["start_date"])
-    _view = generate_view(_temperature_agg, _targets_agg, _dates)
+    _view = generate_view(
+        _dates,
+        _temperature_agg,
+        _targets_agg,
+        _intensity_agg,
+    )
 
     return _view
 
