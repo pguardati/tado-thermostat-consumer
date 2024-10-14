@@ -47,3 +47,14 @@ def generate_view(_temperature, _dates):
             "time_raw": "temperature_time_raw",
         },
     )
+
+    _view = _view.fillna(method="ffill")
+    _view = _view.fillna(method="bfill")
+    _view = _view[
+        [
+            "time",
+            "temperature_value",
+            "temperature_time_raw",
+        ]
+    ]
+    return _view
