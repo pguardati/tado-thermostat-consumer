@@ -8,10 +8,13 @@ def get_master_dates(
     sample_time="5T",
     days=90,
 ):
-    start_date = pd.to_datetime(start_date)
+    start_date = pd.to_datetime(start_date, utc=True)
+
     end_date = start_date + pd.DateOffset(days=days)
     dates = pd.date_range(start_date, end_date, freq=sample_time)
     _dates = pd.DataFrame(dates, columns=["time"])
+
+    _dates = _dates[["time"]]
     return _dates
 
 
@@ -20,18 +23,21 @@ def clean_temperatures(
     sample_time="5T",
 ):
     _t = temperatures.copy()[["time", "temperature"]]
-    _t["time"] = pd.to_datetime(_t["time"])
+    _t["time"] = pd.to_datetime(_t["time"], utc=True)
 
+    # resample, but keep the raw time
     _t["time_raw"] = _t["time"]
     _t_res = _t.set_index("time").resample(sample_time).mean()
     _t_res = _t_res.reset_index()
-    _t_res["temperature"] = _t_res["temperature"].ffill()
+    _t_res = _t_res.ffill()
 
-    _t_clean = _t_res[["time", "time_raw", "temperature"]]
+    _t_res["value"] = _t_res["temperature"]
+    _t_clean = _t_res[["time", "time_raw", "value"]]
     return _t_clean
 
 
 def generate_view(_temperature, _dates):
-    _t = _temperature.copy()[["time", "time_raw", "temperature"]]
+    _t = _temperature.copy()[["time", "time_raw", "value"]]
     _d = _dates.copy()[["time"]]
 
+    _view = pd.merge(_d, _t, on="time", how="left")
