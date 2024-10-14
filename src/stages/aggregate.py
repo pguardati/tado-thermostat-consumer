@@ -31,32 +31,19 @@ def aggregate_targets(df, params):
     # filter
     _df = _df[_df["start"] > _start_date]
 
-    # extract squares from points
-    _df = _df.sort_values(by=["start"])
+    # get reference changes
     _targets_ref = []
-    for i, row in _df.iterrows():
-        _targets_ref.append(
-            {
-                "id": i,
-                "time": row["start"],
-                "temperature": row["temperature"],
-            }
-        )
-        _targets_ref.append(
-            {
-                "id": i,
-                "time": row["end"],
-                "temperature": row["temperature"],
-            }
-        )
-    _df2 = pd.DataFrame(_targets_ref)
+    for i, row in df.iterrows():
+        _targets_ref.append({"time": row["start"], "temperature": row["temperature"]})
+    _t1 = pd.DataFrame(_targets_ref)
+    _t1 = _t1.sort_values(by=["time"]).reset_index(drop=True)
+    _t1 = _t1.drop_duplicates(subset=["time"], keep="first")
 
-    # sort
-    _df2 = _df2.sort_values(by=["time", "id"])
-
-    # output schema validation
-    _df2["time"] = pd.to_datetime(_df2["time"])
-    return _df2
+    # resample
+    _t1["time_raw"] = _t1["time"]
+    _t1_res = _t1.set_index("time").resample("5T").mean().reset_index()
+    _t1_res = _t1_res.ffill()
+    return _t1_res
 
 
 def aggregate_intensity(df, params):
@@ -97,5 +84,3 @@ def aggregate_intensity(df, params):
     # output schema validation
     _df2["time"] = pd.to_datetime(_df2["time"])
     return _df2
-
-
