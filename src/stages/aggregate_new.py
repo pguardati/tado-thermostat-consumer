@@ -3,6 +3,15 @@ from datetime import datetime
 import pandas as pd
 
 
+def _resample(df, sample_time):
+    """resample, but keep the raw sensing time"""
+    df["time_raw"] = df["time"]
+    _df_res = df.set_index("time").resample(sample_time).mean()
+    _df_res = _df_res.reset_index()
+    _df_res = _df_res.ffill()
+    return _df_res
+
+
 def get_master_dates(
     start_date,
     sample_time="5T",
@@ -25,11 +34,7 @@ def clean_temperatures(
     _t = temperatures.copy()[["time", "temperature"]]
     _t["time"] = pd.to_datetime(_t["time"], utc=True)
 
-    # resample, but keep the raw time
-    _t["time_raw"] = _t["time"]
-    _t_res = _t.set_index("time").resample(sample_time).mean()
-    _t_res = _t_res.reset_index()
-    _t_res = _t_res.ffill()
+    _t_res = _resample(_t, sample_time)
 
     _t_res["value"] = _t_res["temperature"]
     _t_clean = _t_res[["time", "time_raw", "value"]]
@@ -51,11 +56,7 @@ def clean_targets(
     _tc = _tc.sort_values(by=["time"]).reset_index(drop=True)
     _tc = _tc.drop_duplicates(subset=["time"], keep="first")
 
-    # resample, but keep the raw time
-    _tc["time_raw"] = _tc["time"]
-    _tcr = _tc.set_index("time").resample(sample_time).mean()
-    _tcr = _tcr.reset_index()
-    _tcr = _tcr.ffill()
+    _tcr = _resample(_tc, sample_time)
 
     _tcr["value"] = _tcr["temperature"]
     _t_clean = _tcr[["time", "time_raw", "value"]]
