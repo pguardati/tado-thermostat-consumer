@@ -36,6 +36,13 @@ def clean_temperatures(
     return _t_clean
 
 
+def clean_targets(
+    intensity,
+    sample_time="5T",
+):
+    pass
+
+
 def generate_view(_temperature, _dates):
     _t = _temperature.copy()[["time", "time_raw", "value"]]
     _d = _dates.copy()[["time"]]

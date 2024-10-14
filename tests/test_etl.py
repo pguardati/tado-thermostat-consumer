@@ -3,7 +3,12 @@ from pathlib import Path
 
 from src.common import read_json_files
 
-from src.stages.aggregate_new import get_master_dates, clean_temperatures, generate_view
+from src.stages.aggregate_new import (
+    get_master_dates,
+    clean_temperatures,
+    generate_view,
+    clean_targets,
+)
 from src.stages.ingest import (
     get_daily_intensity,
     get_daily_targets,
@@ -25,7 +30,7 @@ def _run_serial_new_etl(staging_dir):
     _intensity_raw = pd.concat([get_daily_intensity(data) for data in raw_row])
 
     _temperature_agg = clean_temperatures(_temperature_raw)
-    _targets_agg = None
+    _targets_agg = clean_targets(_targets_raw)
     _intensity_agg = None
 
     _dates = get_master_dates(start_date["start_date"])
