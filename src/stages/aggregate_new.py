@@ -37,10 +37,29 @@ def clean_temperatures(
 
 
 def clean_targets(
-    intensity,
+    targets,
     sample_time="5T",
 ):
-    pass
+    _t = targets.copy()[["start", "end", "temperature"]]
+    _t["start"] = pd.to_datetime(_t["start"], utc=True)
+
+    # extract target changes
+    targets_clean = []
+    for i, row in _t.iterrows():
+        targets_clean.append({"time": row["start"], "temperature": row["temperature"]})
+    _tc = pd.DataFrame(targets_clean)
+    _tc = _tc.sort_values(by=["time"]).reset_index(drop=True)
+    _tc = _tc.drop_duplicates(subset=["time"], keep="first")
+
+    # resample, but keep the raw time
+    _tc["time_raw"] = _tc["time"]
+    _tcr = _tc.set_index("time").resample(sample_time).mean()
+    _tcr = _tcr.reset_index()
+    _tcr = _tcr.ffill()
+
+    _tcr["value"] = _tcr["temperature"]
+    _t_clean = _tcr[["time", "time_raw", "value"]]
+    return _t_clean
 
 
 def generate_view(_temperature, _dates):
