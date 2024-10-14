@@ -31,9 +31,9 @@ def _run_serial_new_etl(staging_dir):
     _dates = get_master_dates(start_date["start_date"])
     _view = generate_view(_temperature_agg, _dates)
 
-    return _temperature_agg, _targets_agg, _intensity_agg
+    return _view
 
 
 def test_new_etl():
-    _temperature, _targets, _intensity = _run_serial_new_etl(staging_dir)
-    _plot_temperatures(_temperature, Granularity.MONTH)
+    _view = _run_serial_new_etl(staging_dir)
+    _plot_temperatures(_view, Granularity.MONTH)
