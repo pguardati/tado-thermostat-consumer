@@ -38,20 +38,20 @@ def _run_serial_new_etl(
     _targets_raw = pd.concat([get_daily_targets(data) for data in raw_row])
     _intensity_raw = pd.concat([get_daily_intensity(data) for data in raw_row])
 
-    _temperature_agg = clean_temperatures(_temperature_raw)
-    _targets_agg = clean_targets(_targets_raw)
-    _intensity_agg = clean_intensity(_intensity_raw)
+    _temperature_clean = clean_temperatures(_temperature_raw)
+    _targets_clean = clean_targets(_targets_raw)
+    _intensity_clean = clean_intensity(_intensity_raw)
 
-    _time = _temperature_agg["time"]
+    _time = _temperature_clean["time"]
     _start_date = start_date or _time.min().date().strftime("%Y-%m-%d")
     _end_date = end_date or _time.max().date().strftime("%Y-%m-%d")
     _dates = get_reference_dates(_start_date, _end_date)
 
     _view = generate_aggregate_view(
         _dates,
-        _temperature_agg,
-        _targets_agg,
-        _intensity_agg,
+        _temperature_clean,
+        _targets_clean,
+        _intensity_clean,
     )
     return _view
 
