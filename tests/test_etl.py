@@ -37,11 +37,11 @@ def _run_serial_new_etl(
     _targets_agg = clean_targets(_targets_raw)
     _intensity_agg = clean_intensity(_intensity_raw)
 
-    _start_date = start_date or _temperature_agg["time"].min().date().strftime(
-        "%Y-%m-%d"
-    )
-    _end_date = end_date or _temperature_agg["time"].max().date().strftime("%Y-%m-%d")
+    _time = _temperature_agg["time"]
+    _start_date = start_date or _time.min().date().strftime("%Y-%m-%d")
+    _end_date = end_date or _time.max().date().strftime("%Y-%m-%d")
     _dates = get_master_dates(_start_date, _end_date)
+
     _view = generate_view(
         _dates,
         _temperature_agg,
