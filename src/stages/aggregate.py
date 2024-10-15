@@ -39,8 +39,8 @@ def generate_aggregate_view(
         },
     )
 
-    _view = _view.fillna(method="ffill")
-    _view = _view.fillna(method="bfill")
+    _view = _view.ffill()
+    _view = _view.bfill()
     _view = _view[
         [
             "time",
