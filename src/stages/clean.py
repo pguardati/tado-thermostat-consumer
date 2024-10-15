@@ -10,6 +10,22 @@ def _resample(df, sample_time):
     return _df_res
 
 
+def _extract_target_changes(targets, value_column="temperature"):
+    targets_changes = []
+    for i, row in targets.iterrows():
+        targets_changes.append(
+            {
+                "time": row["start"],
+                value_column: row[value_column],
+            }
+        )
+    _tc = pd.DataFrame(targets_changes)
+
+    _tc = _tc.sort_values(by=["time"]).reset_index(drop=True)
+    _tc = _tc.drop_duplicates(subset=["time"], keep="first")
+    return _tc
+
+
 def get_reference_dates(
     start_date,
     end_date,
@@ -45,14 +61,7 @@ def clean_targets(
     _t = targets.copy()[["start", "end", "temperature"]]
     _t["start"] = pd.to_datetime(_t["start"], utc=True)
 
-    # extract target changes
-    targets_clean = []
-    for i, row in _t.iterrows():
-        targets_clean.append({"time": row["start"], "temperature": row["temperature"]})
-    _tc = pd.DataFrame(targets_clean)
-    _tc = _tc.sort_values(by=["time"]).reset_index(drop=True)
-    _tc = _tc.drop_duplicates(subset=["time"], keep="first")
-
+    _tc = _extract_target_changes(_t, value_column="temperature")
     _tcr = _resample(_tc, sample_time)
 
     _tcr["value"] = _tcr["temperature"]
@@ -67,14 +76,7 @@ def clean_intensity(
     _i = intensity.copy()[["start", "end", "intensity"]]
     _i["start"] = pd.to_datetime(_i["start"], utc=True)
 
-    # extract target changes
-    i_clean = []
-    for i, row in _i.iterrows():
-        i_clean.append({"time": row["start"], "intensity": row["intensity"]})
-    _ic = pd.DataFrame(i_clean)
-    _ic = _ic.sort_values(by=["time"]).reset_index(drop=True)
-    _ic = _ic.drop_duplicates(subset=["time"], keep="first")
-
+    _ic = _extract_target_changes(_i, value_column="intensity")
     _icr = _resample(_ic, sample_time)
 
     _icr["value"] = _icr["intensity"]

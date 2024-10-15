@@ -16,3 +16,4 @@ __pycache__/
 data/
 a0_tmp/
 /tmp/
+*_tmp.parquet
