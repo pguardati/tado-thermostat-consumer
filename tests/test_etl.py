@@ -15,15 +15,18 @@ from src.stages.ingest import (
     get_daily_targets,
     get_daily_temperature,
 )
-from src.stages.visualise import _plot_aggregates, Granularity, _plot_temperatures
+from src.stages.visualise import Granularity, _plot_view
 
 current_file_path = Path(__name__).resolve()
 test_dir = current_file_path.parent / "resources" / "test_etl"
 staging_dir = test_dir / "staging"
 
 
-def _run_serial_new_etl(staging_dir):
-    start_date = {"start_date": "2024-03-01"}
+def _run_serial_new_etl(
+    staging_dir,
+    start_date=None,
+    end_date=None,
+):
     raw_row = read_json_files(staging_dir)
 
     _temperature_raw = pd.concat([get_daily_temperature(data) for data in raw_row])
@@ -34,7 +37,11 @@ def _run_serial_new_etl(staging_dir):
     _targets_agg = clean_targets(_targets_raw)
     _intensity_agg = clean_intensity(_intensity_raw)
 
-    _dates = get_master_dates(start_date["start_date"])
+    _start_date = start_date or _temperature_agg["time"].min().date().strftime(
+        "%Y-%m-%d"
+    )
+    _end_date = end_date or _temperature_agg["time"].max().date().strftime("%Y-%m-%d")
+    _dates = get_master_dates(_start_date, _end_date)
     _view = generate_view(
         _dates,
         _temperature_agg,
@@ -46,5 +53,9 @@ def _run_serial_new_etl(staging_dir):
 
 
 def test_new_etl():
-    _view = _run_serial_new_etl(staging_dir)
-    _plot_temperatures(_view, Granularity.MONTH)
+    _view = _run_serial_new_etl(
+        staging_dir,
+        start_date="2024-03-01",
+        end_date="2024-03-31",
+    )
+    _plot_view(_view, Granularity.MONTH)

@@ -12,7 +12,7 @@ from src.stages.ingest import (
     get_daily_targets,
     get_daily_temperature,
 )
-from src.stages.visualise import _plot_aggregates, Granularity, _plot_temperatures
+from src.stages.visualise import _plot_aggregates, Granularity
 
 current_file_path = Path(__name__).resolve()
 test_dir = current_file_path.parent / "resources" / "test_etl"

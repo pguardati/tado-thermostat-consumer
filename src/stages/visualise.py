@@ -105,7 +105,7 @@ def _plot_aggregates(_t, _c, _h, visual_granularity):
     plt.show()
 
 
-def _plot_temperatures(_v, visual_granularity):
+def _plot_view(_v, visual_granularity):
     plt.style.use('dark_background')
     fig, ax = plt.subplots(2, 1, sharex=True)
     # plot temperature

@@ -4,13 +4,12 @@ from datetime import datetime, timedelta
 import click
 from src.stages.extract import extract_files_from_tado_api
 from src.stages.visualise import (
-    plot_aggregates,
     Granularity,
+    _plot_view,
 )
-from src.stages.ingest import ingest_raw_data
-from src.stages.aggregate import clean_data
+from tests.test_etl import _run_serial_new_etl
 
-START_TIME = (datetime.now() - timedelta(days=300)).date()
+START_TIME = (datetime.now() - timedelta(days=510)).date()
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LAKE_DIR = os.path.join(PROJECT_DIR, "data")
 
@@ -30,12 +29,14 @@ def main(
         os.makedirs(layer_dir, exist_ok=True)
 
     extract_files_from_tado_api(start_date, staging_dir, reload_today, reload_all)
-
-    ingest_raw_data(staging_dir, bronze_dir)
-    clean_data(bronze_dir, silver_dir, start_date)
+    _view = _run_serial_new_etl(
+        staging_dir,
+        start_date=start_date,
+        end_date=None,
+    )
 
     if plot_all:
-        plot_aggregates(silver_dir, visual_granularity)
+        _plot_view(_view, visual_granularity)
 
 
 @click.command()

@@ -14,12 +14,11 @@ def _resample(df, sample_time):
 
 def get_master_dates(
     start_date,
+    end_date,
     sample_time="5T",
-    days=90,
 ):
     start_date = pd.to_datetime(start_date, utc=True)
-
-    end_date = start_date + pd.DateOffset(days=days)
+    end_date = pd.to_datetime(end_date, utc=True)
     dates = pd.date_range(start_date, end_date, freq=sample_time)
     _dates = pd.DataFrame(dates, columns=["time"])
 
@@ -122,7 +121,6 @@ def generate_view(
             "time_raw": "intensity_time_raw",
         },
     )
-
 
     _view = _view.fillna(method="ffill")
     _view = _view.fillna(method="bfill")
