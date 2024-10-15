@@ -3,13 +3,10 @@ from pathlib import Path
 
 from src.common import read_json_files
 
-from src.stages.aggregate_new import (
-    get_master_dates,
-    clean_temperatures,
-    generate_view,
-    clean_targets,
-    clean_intensity,
+from src.stages.aggregate import (
+    generate_aggregate_view,
 )
+from src.stages.clean import get_reference_dates, clean_temperatures, clean_targets, clean_intensity
 from src.stages.ingest import (
     get_daily_intensity,
     get_daily_targets,
@@ -40,9 +37,9 @@ def _run_serial_new_etl(
     _time = _temperature_agg["time"]
     _start_date = start_date or _time.min().date().strftime("%Y-%m-%d")
     _end_date = end_date or _time.max().date().strftime("%Y-%m-%d")
-    _dates = get_master_dates(_start_date, _end_date)
+    _dates = get_reference_dates(_start_date, _end_date)
 
-    _view = generate_view(
+    _view = generate_aggregate_view(
         _dates,
         _temperature_agg,
         _targets_agg,

@@ -1,10 +1,8 @@
 import enum
-import os
 from datetime import datetime
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
-import pandas as pd
 
 plt.switch_backend("TkAgg")
 
@@ -78,36 +76,10 @@ def color_seasons(ax, _t):
     )
 
 
-def _plot_measurements_vs_targets(ax, _t, _c, visual_granularity):
-    ax.set_title(
-        f"Living Room Temperatures since {_t['time'].min().strftime('%Y-%m-%d')}"
-    )
-    ax.plot(_t["time"], _t["temperature"], label="measured", color="blue")
-    ax.plot(_c["time"], _c["temperature"], label="target", color="red")
-    _use_common_ax_settings(ax, granularity=visual_granularity)
-    color_seasons(ax, _t)
-
-
-def _plot_heaters_intensity(ax, _h, visual_granularity):
-    ax.set_title("Heaters Intensity")
-    ax.plot(_h["time"], _h["intensity"], label="intensity", color="green")
-    ax.yaxis.set_major_locator(mdates.AutoDateLocator())
-    ax.set_yticks([0, 1, 2, 3])
-    ax.set_yticklabels(["NONE", "LOW", "MEDIUM", "HIGH"])
-    _use_common_ax_settings(ax, granularity=visual_granularity)
-
-
-def _plot_aggregates(_t, _c, _h, visual_granularity):
-    fig, axes = plt.subplots(2, 1)
-    _plot_measurements_vs_targets(axes[0], _t, _c, visual_granularity)
-    _plot_heaters_intensity(axes[1], _h, visual_granularity)
-    axes[1].set_xlim(axes[0].get_xlim())
-    plt.show()
-
-
 def _plot_view(_v, visual_granularity):
-    plt.style.use('dark_background')
+    plt.style.use("dark_background")
     fig, ax = plt.subplots(2, 1, sharex=True)
+
     # plot temperature
     ax[0].plot(_v["time"], _v["temperature_value"], label="measured", color="blue")
     ax[0].scatter(
@@ -118,6 +90,7 @@ def _plot_view(_v, visual_granularity):
         marker="o",
         s=10,
     )
+
     # plot targets
     ax[0].plot(_v["time"], _v["target_value"], label="measured", color="red")
     ax[0].scatter(

@@ -1,86 +1,55 @@
-from datetime import datetime
-
 import pandas as pd
 
 
-def aggregate_temperatures(df, params):
-    _df = df.copy()
-    _start_date = params["start_date"]
+def generate_aggregate_view(
+    _dates,
+    _temperature,
+    _targets,
+    _intensity,
+):
+    _d = _dates.copy()[["time"]]
+    _t = _temperature.copy()[["time", "time_raw", "value"]]
+    _tr = _targets.copy()[["time", "time_raw", "value"]]
+    _i = _intensity.copy()[["time", "time_raw", "value"]]
 
-    # input schema validation
-    df["time"] = pd.to_datetime(df["time"])
+    # merge temperatures
+    _view = pd.merge(_d, _t, on="time", how="left")
+    _view = _view.rename(
+        columns={
+            "value": "temperature_value",
+            "time_raw": "temperature_time_raw",
+        },
+    )
 
-    # filter
-    _df = _df[_df["time"] > _start_date]
+    # merge targets
+    _view = pd.merge(_view, _tr, on="time", how="left")
+    _view = _view.rename(
+        columns={
+            "value": "target_value",
+            "time_raw": "target_time_raw",
+        },
+    )
 
-    # sort
-    _df = _df.sort_values(by=["time"])
+    # merge intensity
+    _view = pd.merge(_view, _i, on="time", how="left")
+    _view = _view.rename(
+        columns={
+            "value": "intensity_value",
+            "time_raw": "intensity_time_raw",
+        },
+    )
 
-    # output schema validation
-    _df["time"] = pd.to_datetime(_df["time"])
-    return _df
-
-
-def aggregate_targets(df, params):
-    _df = df.copy()
-    _start_date = pd.to_datetime(params["start_date"], utc=True)
-
-    # input schema validation
-    df["start"] = pd.to_datetime(df["start"], utc=True)
-
-    # filter
-    _df = _df[_df["start"] > _start_date]
-
-    # get reference changes
-    _targets_ref = []
-    for i, row in df.iterrows():
-        _targets_ref.append({"time": row["start"], "temperature": row["temperature"]})
-    _t1 = pd.DataFrame(_targets_ref)
-    _t1 = _t1.sort_values(by=["time"]).reset_index(drop=True)
-    _t1 = _t1.drop_duplicates(subset=["time"], keep="first")
-
-    # resample
-    _t1["time_raw"] = _t1["time"]
-    _t1_res = _t1.set_index("time").resample("5T").mean().reset_index()
-    _t1_res = _t1_res.ffill()
-    return _t1_res
-
-
-def aggregate_intensity(df, params):
-    _df = df.copy()
-    _start_date = params["start_date"]
-
-    # input schema validation
-    df["start"] = pd.to_datetime(df["start"])
-
-    # filter
-    bigger_than_start_date = _df["start"] > _start_date
-    after_heaters_on = _df["start"] > datetime(2023, 11, 21).date().isoformat()
-    _df = _df[bigger_than_start_date & after_heaters_on]
-
-    # extract squares from points
-    _df = _df.sort_values(by=["start"])
-    _intensity_ref = []
-    for i, row in _df.iterrows():
-        _intensity_ref.append(
-            {
-                "id": i,
-                "time": row["start"],
-                "intensity": row["intensity"],
-            }
-        )
-        _intensity_ref.append(
-            {
-                "id": i,
-                "time": row["end"],
-                "intensity": row["intensity"],
-            }
-        )
-    _df2 = pd.DataFrame(_intensity_ref)
-
-    # sort
-    _df2 = _df2.sort_values(by=["time", "id"])
-
-    # output schema validation
-    _df2["time"] = pd.to_datetime(_df2["time"])
-    return _df2
+    _view = _view.fillna(method="ffill")
+    _view = _view.fillna(method="bfill")
+    _view = _view[
+        [
+            "time",
+            "temperature_value",
+            "temperature_time_raw",
+            "target_value",
+            "target_time_raw",
+            "intensity_value",
+            "intensity_time_raw",
+        ]
+    ]
+    return _view
