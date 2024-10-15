@@ -33,6 +33,7 @@ def get_reference_dates(
 ):
     start_date = pd.to_datetime(start_date, utc=True)
     end_date = pd.to_datetime(end_date, utc=True)
+
     dates = pd.date_range(start_date, end_date, freq=sample_time)
     _dates = pd.DataFrame(dates, columns=["time"])
 
