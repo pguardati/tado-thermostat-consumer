@@ -48,7 +48,6 @@ def _run_serial_new_etl(
         _targets_agg,
         _intensity_agg,
     )
-
     return _view
 
 
