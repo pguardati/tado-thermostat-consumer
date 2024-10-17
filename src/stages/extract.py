@@ -73,7 +73,10 @@ def _get_historic_data(
 
     def _get_missing_daily_data(date):
         file = os.path.join(download_dir, f"historic_data_{date}.json")
-        if os.path.isfile(file) and not reload_all:
+        file_with_different_time_format = file.replace("00:00:00", "00_00_00")
+        if (
+            os.path.isfile(file) or os.path.isfile(file_with_different_time_format)
+        ) and not reload_all:
             print(f"historic_data_{date}.json already exists")
         else:
             print(f"Getting data for {date}")
