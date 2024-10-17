@@ -27,7 +27,7 @@ pre-commit run --all-files
 
 # Usage
 ```bash
-python src/main.py --start_date 2023-05-18 --reload_today=True
+python src/extract_and_process_thermostat.py --start_date 2023-05-18 --reload_today=True
 ```
 
 
