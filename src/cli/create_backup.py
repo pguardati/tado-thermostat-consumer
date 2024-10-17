@@ -4,6 +4,7 @@ import datetime
 import click
 
 from src.cli.extract_and_process_thermostat import LAKE_DIR
+from src.stages.backup import LocalBackup
 
 TARGET_DIR = os.path.join(LAKE_DIR, "staging")
 BACKUP_DIR = os.path.join(LAKE_DIR, "backups")
@@ -13,38 +14,28 @@ BACKUP_DIR = os.path.join(LAKE_DIR, "backups")
 @click.argument(
     "target_dir",
     default=TARGET_DIR,
-    type=click.Path(exists=True, file_okay=False, readable=True),
 )
 @click.option(
     "--backup-dir",
     "-b",
     default=BACKUP_DIR,
-    show_default=True,
-    type=click.Path(file_okay=False, writable=True),
 )
 def create_backup(target_dir, backup_dir):
-    # Convert paths to absolute paths
-    target_dir = os.path.abspath(target_dir)
-    backup_dir = os.path.abspath(backup_dir)
+    backup_system = LocalBackup(target_dir, backup_dir)
 
-    # Ensure the backup directory exists
     try:
-        os.makedirs(backup_dir, exist_ok=True)
-    except Exception as e:
-        click.echo(f"Error creating backup directory '{backup_dir}': {e}", err=True)
-        return
+        backup_system.create_new()
+        last_backup = backup_system.get_last_backup()
 
-    # Copy the target directory to the backup location
-    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
-    backup_name = f"backup_{timestamp}"
-    backup_path = os.path.join(backup_dir, backup_name)
-    try:
-        #
-        shutil.copytree(target_dir, backup_path)
-        click.echo(f"Backup created successfully at '{backup_path}'.")
+        if last_backup:
+            index, backup_path = last_backup
+            click.echo(f"Backup #{index} created successfully at '{backup_path}'.")
+
+        else:
+            click.echo("Backup was created, but could not retrieve backup details.")
+
     except Exception as e:
         click.echo(f"An error occurred while creating the backup: {e}", err=True)
-
 
 if __name__ == "__main__":
     create_backup()
