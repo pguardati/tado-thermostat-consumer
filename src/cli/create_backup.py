@@ -1,6 +1,4 @@
 import os
-import shutil
-import datetime
 import click
 
 from src.cli.extract_and_process_thermostat import LAKE_DIR
@@ -36,6 +34,7 @@ def create_backup(target_dir, backup_dir):
 
     except Exception as e:
         click.echo(f"An error occurred while creating the backup: {e}", err=True)
+
 
 if __name__ == "__main__":
     create_backup()

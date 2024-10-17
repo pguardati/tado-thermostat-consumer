@@ -2,6 +2,8 @@ import os
 from datetime import datetime, timedelta
 
 import click
+
+from src.stages.backup import LocalBackup
 from src.stages.extract import extract_files_from_tado_api
 from src.stages.visualise import (
     Granularity,
@@ -26,11 +28,14 @@ def main(
     reload_all,
     visual_granularity,
 ):
+    backup_dir = os.path.join(lake_dir, "backups")
     staging_dir = os.path.join(lake_dir, "staging")
     bronze_dir = os.path.join(lake_dir, "raw")
     silver_dir = os.path.join(lake_dir, "processed")
     for layer_dir in [staging_dir, bronze_dir, silver_dir]:
         os.makedirs(layer_dir, exist_ok=True)
+    backup_system = LocalBackup(target_dir=staging_dir, backup_dir=backup_dir)
+    backup_system.restore_backup()
 
     extract_files_from_tado_api(start_date, staging_dir, reload_today, reload_all)
     _view = _run_serial_new_etl(
