@@ -1,3 +1,5 @@
+import unittest
+
 import pandas as pd
 from pathlib import Path
 
@@ -77,23 +79,23 @@ def compare_test_dataframes(
     pd.testing.assert_frame_equal(_view_actual, _view_expected)
 
 
-def test_new_etl(plot=False):
-    _view = _run_serial_new_etl(
-        staging_dir,
-        start_date="2024-03-01",
-        end_date="2024-03-31",
-    )
-    write_test_dataframes(
-        _view,
-        path_view_actual,
-        path_view_expected,
-        overwrite=OVERWRITE_EXPECTATIONS,
-    )
-    compare_test_dataframes(
-        path_view_actual,
-        path_view_expected,
-    )
+class TestLocalBackup(unittest.TestCase):
+    def test_new_etl(self, plot=True):
+        _view = _run_serial_new_etl(
+            staging_dir,
+            start_date="2024-03-01",
+            end_date="2024-03-31",
+        )
+        write_test_dataframes(
+            _view,
+            path_view_actual,
+            path_view_expected,
+            overwrite=OVERWRITE_EXPECTATIONS,
+        )
+        compare_test_dataframes(
+            path_view_actual,
+            path_view_expected,
+        )
 
-    if plot:
-        _plot_view(_view, Granularity.MONTH)
-
+        if plot:
+            _plot_view(_view, Granularity.MONTH)

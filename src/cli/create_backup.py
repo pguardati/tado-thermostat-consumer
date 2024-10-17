@@ -3,7 +3,7 @@ import shutil
 import datetime
 import click
 
-from src.extract_and_process_thermostat import LAKE_DIR
+from src.cli.extract_and_process_thermostat import LAKE_DIR
 
 TARGET_DIR = os.path.join(LAKE_DIR, "staging")
 BACKUP_DIR = os.path.join(LAKE_DIR, "backups")
