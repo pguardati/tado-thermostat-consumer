@@ -10,7 +10,11 @@ from src.stages.visualise import (
 from tests.test_etl import _run_serial_new_etl
 
 START_TIME = (datetime.now() - timedelta(days=510)).date()
-PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_NAME = "tado-thermostat-consumer"
+REPOSITORY_PATH = os.path.realpath(__file__)[
+    : os.path.realpath(__file__).find(PROJECT_NAME)
+]
+PROJECT_DIR = os.path.join(REPOSITORY_PATH, PROJECT_NAME)
 LAKE_DIR = os.path.join(PROJECT_DIR, "data")
 
 
