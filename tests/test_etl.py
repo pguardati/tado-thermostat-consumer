@@ -3,6 +3,7 @@ import unittest
 import pandas as pd
 from pathlib import Path
 
+from src.stages.extract import PARTITION_NAME
 from src.stages.storage import read_json_files
 
 from src.stages.aggregate import (
@@ -45,8 +46,8 @@ def _run_serial_new_etl(
     _intensity_clean = clean_intensity(_intensity_raw)
 
     _time = _temperature_clean["time"]
-    _start_date = start_date or _time.min().date().strftime("%Y-%m-%d")
-    _end_date = end_date or _time.max().date().strftime("%Y-%m-%d")
+    _start_date = start_date or _time.min().date().strftime(PARTITION_NAME)
+    _end_date = end_date or _time.max().date().strftime(PARTITION_NAME)
     _dates = get_reference_dates(_start_date, _end_date)
 
     _view = generate_aggregate_view(
